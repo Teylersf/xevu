@@ -1,0 +1,20 @@
+{
+  "fonts": {
+    "BarlowSemiCondensed-SemiBold.ttf": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlowsemicondensed/BarlowSemiCondensed-SemiBold.ttf",
+    "OFL-Barlow.txt": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlowsemicondensed/OFL.txt",
+    "IBMPlexMono-Regular.ttf": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/IBMPlexMono-Regular.ttf",
+    "OFL-IBMPlexMono.txt": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/OFL.txt"
+  },
+  "art": "Built-in imagegen; prompt in assets/ARTWORK.md",
+  "sha256": {
+    "font-12.bin": "cd47c72b0db0d750358a4872c74ad9ecd85a2440a2e35a9653ef49acede014c4",
+    "font-14.bin": "11cd3d3e38418e523ccd66cf0e30f5dd8c5d6b4200c6392a86423fb9051e413e",
+    "font-16.bin": "b0b82e3dccb11d716584c39f465d6eed38fffe58b22ce41dba2a78dd38c21b21",
+    "font-20.bin": "49f9acf2d4cbcf795c83fdb2b1b8eadc4795d5838db9047505f4140c3bc65d49",
+    "font-28.bin": "587b5fd31c6177e228fbea6cf283a47bfba5ac92f1ac78833b81137dae9555a5",
+    "font-40.bin": "9d2b0abcfea772d6e24bad7e8a1115be83cd2203f77849f14a428a9cef4720f6",
+    "font-64.bin": "183c1c60d00c4a9136cf543230502de06cbf78f128c69d1a411ef46743e98ba4",
+    "nullgrav-wallpaper.png": "416fefa52a06b73483d1d456b2697d8c7ae8986d93fbb066f92916244d7b7a79",
+    "wallpaper.rgbz": "394e62337efe2d9cd291d20a66cea560f0740ccbe437d8f2eb0e19d6e4727039"
+  }
+}

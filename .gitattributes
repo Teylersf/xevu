@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.png binary
+*.jpg binary
+*.bmp binary
+*.ttf binary
+*.bin binary
+*.rgbz binary
+assets/fonts/OFL* -whitespace

@@ -1,0 +1,9 @@
+{
+  "source_physical_bytes": 402653184,
+  "copied_extent_bytes": 268435456,
+  "target_bytes": 268435456,
+  "source_extent_sha256": "6eeee36ca9f239edc7bd1f007b20ce375a6ca7043f909f5a65c9bbef7cd36302",
+  "target_sha256": "6eeee36ca9f239edc7bd1f007b20ce375a6ca7043f909f5a65c9bbef7cd36302",
+  "clone_matches_installed_extent": true,
+  "source_fixture_unchanged": true
+}

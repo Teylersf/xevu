@@ -1,0 +1,23 @@
+name: Build and test native preview
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install target
+        run: rustup target add x86_64-unknown-uefi
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Test host and core
+        run: cargo test --locked
+      - name: Build firmware executable
+        run: cargo build --locked --release -p nullgrav-boot --target x86_64-unknown-uefi
+      - name: Build host CLI
+        run: cargo build --locked --release -p fieldctl
+      - name: Package disk image
+        run: python tools/build_image.py

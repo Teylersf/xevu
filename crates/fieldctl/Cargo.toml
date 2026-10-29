@@ -1,0 +1,17 @@
+[package]
+name = "fieldctl"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+nullgrav-vault = { path = "../vault-core" }
+getrandom = "0.2"
+rpassword = "7.4"
+zeroize = { version = "1.8", features = ["alloc"] }
+sha2 = "0.10.9"
+
+[dev-dependencies]
+zune-jpeg = { version = "0.4.21", default-features = false }
+zune-core = { version = "0.4.12", default-features = false }
+zune-png = { version = "0.4.10", default-features = false }

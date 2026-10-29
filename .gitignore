@@ -1,0 +1,12 @@
+/target/
+/dist/*
+!/dist/.gitkeep
+/tmp/
+/tools/.venv/
+*.ngv
+*.ngk
+*.img
+*.fd
+*.log
+__pycache__/
+/test-output/
