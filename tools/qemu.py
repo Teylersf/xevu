@@ -1,4 +1,4 @@
-"""Headless QEMU/OVMF controls for disposable test images only.
+"""QEMU/OVMF controls for regular-file test images only.
 
 Windows: wsl -d Ubuntu -- python3 /mnt/e/aicaller/tools/qemu.py start
          wsl -d Ubuntu -- python3 /mnt/e/aicaller/tools/qemu.py capture dashboard
@@ -31,8 +31,10 @@ def text(value):
         else:name={' ':'spc','-':'minus','_':'shift-minus','.':'dot','/':'slash',':':'shift-semicolon','!':'shift-1','@':'shift-2'}.get(c)
         if not name:raise ValueError(f'Unsupported test input character: {c!r}')
         key(name)
-def start(image=None,resume=False):
-    OUT.mkdir(exist_ok=True)
+def start(image=None,resume=False,display='none',memory_mib=512):
+    if display not in ('none','gtk','sdl'):raise SystemExit('Unsupported display backend')
+    if not 256<=memory_mib<=8192:raise SystemExit('Memory must be between 256 and 8192 MiB')
+    OUT.mkdir(parents=True,exist_ok=True)
     if STATE.exists():
         try:command('query-status');raise SystemExit('A test VM is already running; stop it explicitly first.')
         except (OSError,ValueError):pass
@@ -48,7 +50,8 @@ def start(image=None,resume=False):
         with boot.open('r+b') as f:
             f.truncate(384*1024*1024);f.seek(383*1024*1024);f.write(b'PUBLIC UNALLOCATED TAIL FIXTURE / MUST NOT BE CLONED')
     target=OUT/'clone-target.img'
-    with target.open('wb')as f:f.truncate(256*1024*1024)
+    if not resume or not target.exists():
+        with target.open('wb')as f:f.truncate(256*1024*1024)
     data=FatImage(64);data.add('FIELD.TXT',b'NULLGRAV PUBLIC TEST FIXTURE\r\nIndependent antigravity research transport.\r\nThis is not sensitive content.\r\n')
     w,h=240,160;pixels=bytearray()
     for y in range(h):
@@ -58,23 +61,27 @@ def start(image=None,resume=False):
     if fixtures.exists():
         for file in sorted(fixtures.iterdir()):
             if file.is_file() and file.suffix.upper()!='.PDF':data.add(file.name,file.read_bytes())
-    data.write(OUT/'import-source.img')
-    var=OUT/'OVMF_VARS.fd';shutil.copyfile('/usr/share/OVMF/OVMF_VARS_4M.fd',var)
+    if not resume or not (OUT/'import-source.img').exists():data.write(OUT/'import-source.img')
+    var=OUT/'OVMF_VARS.fd'
+    if not resume or not var.exists():shutil.copyfile('/usr/share/OVMF/OVMF_VARS_4M.fd',var)
     with socket.socket()as reserve:reserve.bind(('127.0.0.1',0));port=reserve.getsockname()[1]
-    cmd=['qemu-system-x86_64','-machine','q35,accel=tcg','-cpu','max','-m','512M','-display','none','-net','none','-no-reboot','-qmp',f'tcp:127.0.0.1:{port},server=on,wait=off','-drive','if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd','-drive',f'if=pflash,format=raw,file={var}','-device','qemu-xhci,id=xhci','-device','usb-kbd,bus=xhci.0','-device','usb-mouse,bus=xhci.0','-object','rng-random,filename=/dev/urandom,id=rng0','-device','virtio-rng-pci,rng=rng0']
+    cmd=['qemu-system-x86_64','-name','NULLGRAV - Interactive test VM' if display!='none' else 'NULLGRAV - Headless test VM','-machine','q35,accel=tcg','-cpu','max','-m',str(memory_mib)+'M','-display',display,'-net','none','-no-reboot','-qmp',f'tcp:127.0.0.1:{port},server=on,wait=off','-drive','if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd','-drive',f'if=pflash,format=raw,file={var}','-device','qemu-xhci,id=xhci','-device','usb-kbd,bus=xhci.0','-device',('usb-mouse' if display=='none' else 'usb-tablet')+',bus=xhci.0','-object','rng-random,filename=/dev/urandom,id=rng0','-device','virtio-rng-pci,rng=rng0']
     for i,p in enumerate([boot,OUT/'import-source.img',target]):
         cmd+=['-drive',f'if=none,id=media{i},format=raw,file={p}','-device',f'usb-storage,bus=xhci.0,drive=media{i}'+(',bootindex=1'if i==0 else '')]
     with (OUT/'qemu.log').open('wb')as log:proc=subprocess.Popen(cmd,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
-    STATE.write_text(json.dumps({'pid':proc.pid,'port':port,'boot':str(boot),'target':str(target),'source_sha256_before':__import__('hashlib').file_digest((OUT/'import-source.img').open('rb'),'sha256').hexdigest()},indent=2))
+    STATE.write_text(json.dumps({'pid':proc.pid,'port':port,'boot':str(boot),'target':str(target),'display':display,'memory_mib':memory_mib,'source_sha256_before':__import__('hashlib').file_digest((OUT/'import-source.img').open('rb'),'sha256').hexdigest()},indent=2))
     time.sleep(2)
     if proc.poll()is not None:raise SystemExit((OUT/'qemu.log').read_text())
     print(json.dumps({'pid':proc.pid,'port':port,'status':command('query-status')}),flush=True)
     return proc
 def main():
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['start','run','resume','capture','key','text','stop','status']);p.add_argument('value',nargs='?',default='screen');p.add_argument('--image',type=Path);a=p.parse_args()
-    if a.action=='start':start(a.image)
-    elif a.action=='run':start(a.image).wait()
-    elif a.action=='resume':start(resume=True).wait()
+    global OUT,STATE
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['start','run','resume','capture','key','text','stop','status']);p.add_argument('value',nargs='?',default='screen');p.add_argument('--image',type=Path);p.add_argument('--display',choices=['none','gtk','sdl'],default='none');p.add_argument('--memory-mib',type=int,default=512);p.add_argument('--session',choices=['test','interactive'],default='test');a=p.parse_args()
+    if a.session=='interactive':OUT=OUT/'interactive-vm';STATE=OUT/'qemu-session.json'
+    options={'display':a.display,'memory_mib':a.memory_mib}
+    if a.action=='start':start(a.image,**options)
+    elif a.action=='run':start(a.image,**options).wait()
+    elif a.action=='resume':start(resume=True,**options).wait()
     elif a.action=='capture':
         if not a.value.replace('-','').replace('_','').isalnum():raise SystemExit('Use a simple capture label')
         out=OUT/(a.value+'.ppm');command('screendump',{'filename':str(out)});print(out)

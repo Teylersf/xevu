@@ -144,6 +144,20 @@ until imported. Do not confuse storage support with viewing support.
 QEMU + OVMF are required. On this Windows development host the QEMU tools run
 under Ubuntu WSL; the shipped image itself contains no Linux components.
 
+Double-click **TEST NULLGRAV VM.cmd** to open a visible QEMU window with 4 GiB of
+guest memory. This uses Ubuntu WSL and WSLg, with QEMU's GTK display backend.
+Only virtual disks are attached; the physical SD card and Windows drives are not
+passed through. Test files, a writable vault disk, and a clone destination persist
+under `test-output/interactive-vm/`. Later launches resume those virtual disks.
+Use public test content. Press N to create a test vault, 1–5 to navigate, and Q
+to shut down. This VM validates the software flow, not J3455/SD-reader compatibility.
+
+Install the development VM dependencies inside Ubuntu if they are absent:
+
+```sh
+sudo apt-get install qemu-system-x86 qemu-system-gui ovmf
+```
+
 ```powershell
 wsl -d Ubuntu -- python3 /mnt/e/aicaller/tools/qemu.py run
 wsl -d Ubuntu -- python3 /mnt/e/aicaller/tools/qemu.py capture dashboard
