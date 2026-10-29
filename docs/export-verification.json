@@ -1,0 +1,22 @@
+{
+  "image_sha256": "3576e3b0ff14763d7070f8f418de29fffb23d1751ac2e2e2403a1b6a1eef8132",
+  "original_file_hashes": {
+    "01-Notes.txt": "62f303efc18bcdc2314dcbddb4e26c61cf3bca4c0c77ea0f69bd264ad1a5efa6",
+    "02-Image.png": "bfac020c6d4080484b1bc611fe431ed0317f402cc0faf8b3f8c3066ea49de4dd",
+    "03-Document.pdf": "97949e0833f3430e4143584d492ea7f5e49927e7c62dff56e88530091ff7484b",
+    "04-Video.mp4": "2cb76bfb867b4150f2571f25f6fc76b1fe7bd15fa59ccdc68436b8071bfa8e79"
+  },
+  "restored_file_hashes": {
+    "02-Image.png": "bfac020c6d4080484b1bc611fe431ed0317f402cc0faf8b3f8c3066ea49de4dd",
+    "04-Video.mp4": "2cb76bfb867b4150f2571f25f6fc76b1fe7bd15fa59ccdc68436b8071bfa8e79",
+    "03-Document.pdf": "97949e0833f3430e4143584d492ea7f5e49927e7c62dff56e88530091ff7484b",
+    "01-Notes.txt": "62f303efc18bcdc2314dcbddb4e26c61cf3bca4c0c77ea0f69bd264ad1a5efa6"
+  },
+  "source_names_hidden_in_encrypted_objects": true,
+  "vault_ciphertext_retained": true,
+  "cancel_does_not_write": true,
+  "tampered_objects_do_not_write_plaintext": true,
+  "other_virtual_disks_unchanged": true,
+  "source_formats_not_converted": true,
+  "physical_devices_attached": false
+}

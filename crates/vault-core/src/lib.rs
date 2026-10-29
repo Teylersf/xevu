@@ -413,6 +413,58 @@ pub fn authorize_clone(source: &Disk, target: &mut Disk) -> Result<()> {
     Ok(())
 }
 
+/// Plaintext release is a separate operation from an import or raw clone.
+/// Native export uses removable data media, never the boot disk or an internal ESP.
+pub fn authorize_plaintext_export(boot: &Disk, target: &Disk) -> Result<()> {
+    if !boot.boot
+        || boot.id == target.id
+        || target.boot
+        || !target.removable
+        || target.read_only
+        || target.blocks == 0
+        || !matches!(target.block_size, 512 | 4096)
+    {
+        return Err(Error::Policy);
+    }
+    Ok(())
+}
+
+/// Portable basename for an ordinary Windows file, not a device or path.
+/// See Microsoft's Naming Files, Paths, and Namespaces documentation.
+pub fn windows_name(name: &str) -> bool {
+    if !valid_name(name)
+        || name.ends_with([' ', '.'])
+        || name
+            .chars()
+            .any(|c| matches!(c, '<' | '>' | '"' | '|' | '?' | '*'))
+    {
+        return false;
+    }
+    let stem = name
+        .split('.')
+        .next()
+        .unwrap_or("")
+        .trim_end_matches(' ')
+        .to_ascii_uppercase();
+    if matches!(
+        stem.as_str(),
+        "CON" | "PRN" | "AUX" | "NUL" | "CONIN$" | "CONOUT$"
+    ) {
+        return false;
+    }
+    for prefix in ["COM", "LPT"] {
+        if let Some(suffix) = stem.strip_prefix(prefix)
+            && matches!(
+                suffix,
+                "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "¹" | "²" | "³"
+            )
+        {
+            return false;
+        }
+    }
+    true
+}
+
 /// Copy only the installed image extent, never stale data beyond its partition.
 /// The initial installer deliberately supports a single 512-byte-sector FAT ESP.
 pub fn portable_extent(mbr: &[u8], sector_size: u32, physical_blocks: u64) -> Result<u64> {
@@ -445,6 +497,63 @@ mod tests {
     use super::*;
     fn key() -> MasterKey {
         MasterKey::from_bytes([7; 32])
+    }
+    #[test]
+    fn plaintext_exports_reject_protected_disks_and_windows_devices() {
+        let boot = Disk {
+            id: 1,
+            blocks: 524288,
+            block_size: 512,
+            boot: true,
+            removable: true,
+            read_only: false,
+            access: Access::BootVault,
+        };
+        let out = Disk {
+            id: 2,
+            boot: false,
+            access: Access::Denied,
+            ..boot
+        };
+        authorize_plaintext_export(&boot, &out).unwrap();
+        for bad in [
+            boot,
+            Disk {
+                read_only: true,
+                ..out
+            },
+            Disk {
+                removable: false,
+                ..out
+            },
+            Disk { blocks: 0, ..out },
+        ] {
+            assert!(authorize_plaintext_export(&boot, &bad).is_err());
+        }
+        for bad in [
+            "CON",
+            "nul.txt",
+            "LPT1.pdf",
+            "COM¹.txt",
+            "..",
+            "a/b.txt",
+            "bad:name",
+            "file.",
+            "file ",
+            "bad?.txt",
+        ] {
+            assert!(!windows_name(bad), "{bad}");
+        }
+        for good in [
+            "research & notes.txt",
+            "original.pdf",
+            "clip.mp4",
+            "photo.png",
+            ".env",
+            "study-01.bin",
+        ] {
+            assert!(windows_name(good));
+        }
     }
     #[test]
     fn roundtrip_and_padding() {

@@ -1,0 +1,36 @@
+NULLGRAV / RESTORE A NORMAL PC FILE
+
+Files inside NULLGRAV/VAULT remain encrypted objects with random object names.
+Use Export to restore the stored original filename and exact unencrypted bytes.
+Copying a raw .NGV object with Explorer does not decrypt it.
+
+WINDOWS VM -> A FOLDER ON C: (OR ANOTHER WINDOWS DRIVE):
+1. For an existing 0.3 VM, run UPGRADE NULLGRAV VM.cmd. Close any prompt with Esc
+   and press Q in the old VM when ready. The encrypted vault and retry counter
+   are copied into 0.4; old disks remain as a backup. Use your original password.
+2. Keep the updated VM open. Run SAVE FILES TO WINDOWS.cmd and choose a folder.
+3. Unlock the vault, press 2, select a file, and press E.
+4. Choose WINDOWS_OUT, press Enter, type EXPORT, and press Enter again.
+5. Repeat for other files. Press Q in NULLGRAV when finished.
+6. The Windows helper saves and SHA-256 verifies the normal files in your chosen
+   folder after the VM releases the transfer image. Keep its console open.
+
+ON THE PHYSICAL J3455:
+Unlock the vault, connect a writable FAT32 USB/SD data drive, select a vault file,
+press E, choose that destination, and confirm EXPORT. Files are saved under
+NULLGRAV_EXPORTS with their original names/extensions. Windows reads those normal
+files when booted. Internal NTFS C: writes from the native OS are not supported;
+use the FAT drive to copy to C: after Windows boots. Never choose the boot card.
+
+Original PDF/MP4/etc. files do not need conversion for storage or export. Native
+viewing is a separate limitation. If you imported only an NGD/NGM converted
+preview, that converted payload is what will be exported; also import the original
+PDF/video if you need it back unchanged. File contents and names are preserved;
+original timestamps, ACLs, alternate data streams, and other filesystem metadata
+are not stored in this envelope. Existing destination files are not overwritten.
+
+Exported copies are ordinary readable files outside the vault. The three-failure
+erase policy does not revoke those copies, backups, or previously cloned drives.
+A successful Windows copy removes its temporary bridge image as a best effort;
+failed/interrupted transfers can leave plaintext under test-output/windows-exports.
+This is not a forensic flash sanitization guarantee. Use test data in this preview.

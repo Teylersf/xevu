@@ -1,27 +1,35 @@
-NULLGRAV 0.3.2 adds a Windows file picker for loading files into a running test VM.
+NULLGRAV 0.4.0 adds explicit export of ordinary PC files.
 
-Double-click ADD FILES TO NULLGRAV VM.cmd, select your files, then in NULLGRAV:
-create/unlock a vault with N/U; press 3 and R; select the last non-boot FAT volume;
-press Enter, select a file, and press Enter to encrypt/import it. Press 2 to view.
-No second physical USB stick or VM restart is needed. FAT short-name aliases
-are kept unique, including large batches and leading-dot filenames.
+The vault keeps encrypted objects with hidden original names/content. Select a
+file in the unlocked vault and press E to export its original filename and exact
+unencrypted contents. Every source chunk authenticates before writing; the
+staged and final file are SHA-256 verified. Existing files are not overwritten.
 
-The virtual transfer drive is read-only, originals stay unchanged, and the latest
-transfer is reattached after restart. Transfer images contain plaintext copies on
-the Windows computer; only the imported vault copy is encrypted. Selected files
-are never included in this public release. HOW TO ADD FILES.txt has the steps.
+SAVE FILES TO WINDOWS.cmd asks for a destination folder (including C:), attaches
+a writable WINDOWS_OUT virtual FAT drive, and waits while you export in NULLGRAV.
+After Q shuts the guest down, it restores verified normal files into that folder.
+The helper receives no vault key and never exposes the raw C: drive to the guest.
+Temporary bridge cleanup follows successful output; failures can leave plaintext.
 
-The native OS image is unchanged from 0.3.0. This patch retains the existing VM
-vault and its versioned directory. The image remains unsigned and unaudited.
-Three failed native unlocks still erase the entire boot medium. Do not guess a
-forgotten passphrase. Physical J3455/SD hardware remains untested.
+On real hardware, native export supports writable FAT USB/SD data drives. Files
+are under NULLGRAV_EXPORTS and work in normal Windows. Direct native NTFS C:
+writes remain unsupported; use the FAT drive after Windows boots. Original
+PDF/MP4/etc. payloads export without conversion even when native viewing is not
+supported. Converted NGD/NGM previews cannot recreate an original never imported.
+File contents/names are preserved; timestamps, ACLs and alternate streams are not.
 
-Validation: focused Python transfer-helper tests, native live-USB hotplug,
-file import and viewing, unchanged originals/transfer images/other VM disks,
-vault preservation and read-only transfer restoration after restart, and the
-actual Windows PowerShell-to-WSL import path. No physical disk was passed to QEMU.
+UPGRADE NULLGRAV VM.cmd copies an existing 0.3 encrypted vault and both retry
+records into 0.4 after the old VM stops. It verifies readback, keeps the original
+VM disks, preserves the password and never resets the failure count. A committed
+erasure trigger, inconsistent state or an existing destination disk is refused.
 
-Keep files below 128 MiB each. A batch can contain up to 200 files / 200 MiB;
-the current preview vault holds about 250 MiB total, including earlier imports.
-Images/text open directly; PDF and ordinary video need preparation for native
-viewing. Python 3 on Windows and the existing Ubuntu WSL VM setup are required.
+Validation: 17 Rust tests, 10 Python tests, strict Clippy/format checks, original
+text/PNG/PDF/MP4 export with matching hashes, ordinary C: writes and independent
+readers, cancellation/tamper rejection, and native legacy-vault migration plus
+the actual Windows export wrapper. Only regular-file images were attached to QEMU; C: testing used ordinary files.
+
+This remains an unsigned, firmware-backed engineering preview, with no standalone
+kernel isolation, independent security audit or classified-data approval. Three
+failed native unlocks still erase the boot medium. Exported plaintext, old VM
+backups and prior clones remain independent copies. Read README.md, SECURITY.md,
+HOW TO EXPORT FILES.txt and the verification records before use.

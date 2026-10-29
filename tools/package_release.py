@@ -3,7 +3,7 @@ from pathlib import Path
 import hashlib,json,zipfile
 ROOT=Path(__file__).resolve().parents[1]
 DIST=ROOT/'dist'
-files=['dist/nullgrav-0.3.0-x86_64.img','dist/nullgrav-0.3.0-x86_64.json','dist/nullgrav-0.3.0-x86_64.sha256','dist/BOOTX64.EFI','dist/fieldctl.exe','README.md','SECURITY.md','LICENSE','THIRD_PARTY_NOTICES.md','assets/fonts/OFL-Barlow.txt','assets/fonts/OFL-IBMPlexMono.txt','assets/nullgrav-mark.svg','FLASH NULLGRAV.cmd','tools/write-media.ps1','tools/flash-menu.ps1','tools/prepare_video.py','tools/prepare_document.py','docs/FORMAT.md','docs/VERIFICATION.md','docs/ROADMAP.md','docs/images/dashboard.png','docs/images/boot.png']
+files=['dist/nullgrav-0.4.0-x86_64.img','dist/nullgrav-0.4.0-x86_64.json','dist/nullgrav-0.4.0-x86_64.sha256','dist/BOOTX64.EFI','dist/fieldctl.exe','README.md','SECURITY.md','LICENSE','THIRD_PARTY_NOTICES.md','assets/fonts/OFL-Barlow.txt','assets/fonts/OFL-IBMPlexMono.txt','assets/nullgrav-mark.svg','FLASH NULLGRAV.cmd','tools/write-media.ps1','tools/flash-menu.ps1','tools/prepare_video.py','tools/prepare_document.py','docs/FORMAT.md','docs/VERIFICATION.md','docs/ROADMAP.md','docs/images/dashboard.png','docs/images/boot.png']
 files += ['TEST NULLGRAV VM.cmd','tools/start-vm.ps1','tools/qemu.py','tools/build_image.py',
           'tools/verify_purge.py','docs/ERASURE.md','docs/purge-verification.json',
           'docs/images/erase-warning.png','docs/images/erase-progress.png',
@@ -14,10 +14,15 @@ files += ['tools/verify_signals.py','docs/signals-verification.json','docs/image
 files += ['ADD FILES TO NULLGRAV VM.cmd','HOW TO ADD FILES.txt','tools/add-vm-files.ps1',
           'tools/vm_import.py','tools/test_vm_import.py','tools/verify_vm_import.py',
           'docs/vm-import-verification.json','docs/images/windows-file-import.png']
+files += ['SAVE FILES TO WINDOWS.cmd','HOW TO EXPORT FILES.txt','UPGRADE NULLGRAV VM.cmd',
+          'tools/save-vm-files.ps1','tools/vm_export.py','tools/fat_reader.py','tools/vm_session.py',
+          'tools/upgrade_vm.py','tools/upgrade-vm.ps1','tools/test_vm_export.py',
+          'tools/verify_export.py','docs/export-verification.json','docs/windows-copy-verification.json',
+          'docs/upgrade-export-verification.json','docs/images/export-confirmation.png','docs/images/export-complete.png']
 def digest(p):
     with p.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
 checksums=''.join(digest(ROOT/name)+'  '+name+'\n' for name in files)
-archive=DIST/'nullgrav-0.3.2-preview.zip'
+archive=DIST/'nullgrav-0.4.0-preview.zip'
 with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
     for name in files:z.write(ROOT/name,name)
     z.writestr('SHA256SUMS.txt',checksums)

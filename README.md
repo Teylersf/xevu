@@ -8,10 +8,10 @@ encrypted objects, explicit disk access, a local viewer, and verified replicatio
 
 ![NULLGRAV running in QEMU](docs/images/dashboard.png)
 
-## Current release: engineering preview 0.3.2
+## Current release: engineering preview 0.4.0
 
-0.3.2 adds Windows file-import tooling. The native guest image and VM vault stay
-at 0.3.0, so existing test vaults are preserved.
+0.4.0 adds explicit export of normal PC files. Existing 0.3 VM vaults can be
+upgraded with **UPGRADE NULLGRAV VM.cmd**, retaining their keys and retry state.
 
 This is a real x86-64 UEFI executable and bootable disk image, written in Rust
 without Linux or a browser runtime. **It is a firmware-backed boot environment,
@@ -37,6 +37,10 @@ test files until the limitations in [SECURITY.md](SECURITY.md) are resolved.
   [the erasure policy](docs/ERASURE.md). Keep separate backups.
 - Encrypted filenames and 64 KiB authenticated, padded data chunks using
   XChaCha20-Poly1305 and HKDF-SHA256. No secret key is embedded in the image.
+- **E / Export original** restores the original filename and exact bytes onto a
+  selected writable FAT USB/SD drive, after full authentication and readback
+  verification. **SAVE FILES TO WINDOWS.cmd** delivers those files to a chosen
+  Windows folder, including C:, through a virtual handoff drive.
 - Other firmware FAT volumes have no application file access until selected in
   Disk Gate. Imports open the source read-only, write encrypted copies, read them
   back, authenticate them, compare hashes, and revoke the source grant.
@@ -73,7 +77,7 @@ A USB SD-card reader is the best first test: the PC's firmware must support
 booting its built-in card slot for direct SD boot to work.
 
 1. Download the release archive, extract it, and verify `SHA256SUMS.txt`.
-2. Write `nullgrav-0.3.0-x86_64.img` using a trusted image writer. The included
+2. Write `nullgrav-0.4.0-x86_64.img` using a trusted image writer. The included
    PowerShell writer defaults to **listing only**, refuses Windows boot/system
    disks, requires a selected disk identity, and verifies the image bytes.
 3. Safely eject the card and insert it into the J3455 PC. Open its firmware boot
@@ -94,6 +98,7 @@ booting its built-in card slot for direct SD boot to work.
 | --- | --- |
 | 1–6 | Overview, Vault, Disk Gate, Replicate, System Brief, Signal Lab |
 | U / N | Unlock / create vault |
+| E in Vault | Export the selected original as a normal decrypted file |
 | Up / Down / Enter | Select / open / import |
 | Backspace / Escape | Parent folder / revoke access or close viewer |
 | R | Refresh devices; in Signal Lab, draw a fresh random sample |
@@ -135,6 +140,24 @@ contain important data. The writer does not sanitize old content beyond the
 installed image. See the supported writer behavior and limitations in SECURITY.md.
 
 ## Prepare files on a trusted computer
+
+### Export back to a normal PC file
+
+Keep the original PDF/video when importing: native viewing conversion is optional
+and is separate from storage/export. Raw originals export byte-for-byte without
+conversion, even if the preview cannot display them.
+
+For the VM, run **SAVE FILES TO WINDOWS.cmd**, choose a destination folder,
+unlock the vault and press **2**, select a file, then **E**. Choose **WINDOWS_OUT**,
+press Enter, type **EXPORT**, and press Enter. After exporting all desired files,
+press **Q**; the Windows helper verifies and saves the normal files into that
+folder. The helper does not receive a vault password/key. It keeps its console
+open until the VM closes, then removes its temporary plaintext bridge on success.
+
+On real hardware, choose a writable FAT32 USB/SD destination instead. Files appear
+under `NULLGRAV_EXPORTS`. **Direct native NTFS C: writes are unsupported**; copy
+from the FAT drive after Windows boots. Existing destination files are not
+replaced. The encrypted vault copy remains. See **HOW TO EXPORT FILES.txt**.
 
 ### Easiest way to add Windows files to the running VM
 
@@ -184,7 +207,10 @@ Double-click **TEST NULLGRAV VM.cmd** to open a visible QEMU window with 4 GiB o
 guest memory. This uses Ubuntu WSL and WSLg, with QEMU's GTK display backend.
 Only virtual disks are attached; the physical SD card and Windows drives are not
 passed through. Test files, a writable vault disk, and a clone destination persist
-under `test-output/interactive-vm-0.3.0/`. Later launches resume those virtual disks.
+under `test-output/interactive-vm-0.4.0/`. Later launches resume those virtual disks.
+If a 0.3 vault already exists, quit it with Q and run **UPGRADE NULLGRAV VM.cmd**
+first; the launcher refuses to replace it with an empty vault. Migration verifies
+encrypted file readback and preserves both retry slots, without resetting them.
 Older preview VM disks are kept separately. Three failed unlocks erase this
 version's virtual boot card just as they would a physical boot card.
 Use public test content. Press N to create a test vault, 1–6 to navigate, and Q

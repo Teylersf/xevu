@@ -13,7 +13,7 @@ use alloc::{
 };
 use core::time::Duration;
 use nullgrav_vault::MasterKey;
-use storage::{Entry, Physical, Storage, Unlock};
+use storage::{Entry, ExportTarget, Physical, Storage, Unlock};
 use uefi::{
     boot,
     prelude::*,
@@ -98,6 +98,7 @@ enum Prompt {
     Create,
     Repeat,
     Clone(usize),
+    Export(usize),
 }
 struct Modal {
     kind: Prompt,
@@ -133,6 +134,8 @@ struct App {
     mouse: (usize, usize),
     mouse_down: bool,
     remaining: u8,
+    exporting: Option<(String, Zeroizing<String>)>,
+    export_targets: Vec<ExportTarget>,
 }
 impl App {
     fn new(storage: Storage) -> Self {
@@ -158,6 +161,8 @@ impl App {
             mouse: (0, 0),
             mouse_down: false,
             remaining,
+            exporting: None,
+            export_targets: Vec::new(),
         };
         s.refresh();
         s
@@ -189,6 +194,8 @@ impl App {
         self.names.clear();
     }
     fn lock(&mut self) {
+        self.exporting = None;
+        self.export_targets.clear();
         self.viewer = None;
         self.modal = None;
         self.pending = None;
@@ -200,6 +207,8 @@ impl App {
         self.notify("VAULT SEALED / ACCESS GRANTS REVOKED", false);
     }
     fn goto(&mut self, p: usize) {
+        self.exporting = None;
+        self.export_targets.clear();
         self.storage.revoke_all();
         self.browse = None;
         self.entries.clear();
@@ -222,7 +231,9 @@ impl App {
         self.dirty = true;
     }
     fn count(&self) -> usize {
-        if self.browse.is_some() {
+        if self.exporting.is_some() {
+            self.export_targets.len()
+        } else if self.browse.is_some() {
             self.entries.len()
         } else {
             match self.page {
@@ -248,7 +259,7 @@ impl App {
                         "COMPARTMENT / ENCRYPTED OBJECTS",
                         "RESEARCH VAULT",
                         if self.key.is_some() {
-                            "[ENTER] VIEW   [I] IMPORT   [L] LOCK"
+                            "[ENTER] VIEW   [I] IMPORT   [E] EXPORT ORIGINAL   [L] LOCK"
                         } else {
                             "[U] UNLOCK   [N] CREATE A NEW VAULT"
                         },
@@ -299,7 +310,47 @@ impl App {
                     }
                 }
                 2 => {
-                    if let Some((_, p)) = &self.browse {
+                    if let Some((_, name)) = &self.exporting {
+                        u.heading(
+                            "PLAINTEXT RELEASE / ORIGINAL BYTES",
+                            "EXPORT TO A PC DRIVE",
+                            "[ENTER] CHOOSE WRITABLE FAT TARGET    [R] RESCAN    [ESC] CANCEL",
+                        );
+                        u.text(
+                            282,
+                            218,
+                            14,
+                            &name.chars().take(100).collect::<String>(),
+                            LIME,
+                        );
+                        if self.export_targets.is_empty() {
+                            u.text(282, 282, 28, "NO WRITABLE FAT TARGET", WHITE);
+                            u.wrap(282,340,910,"For the VM, run SAVE FILES TO WINDOWS.cmd. On hardware, connect a writable FAT32 USB/SD drive and press R. Native NTFS C: writes are not supported.",MUTED,4);
+                        } else {
+                            let start = self.selected.saturating_sub(5);
+                            for (i, target) in
+                                self.export_targets.iter().enumerate().skip(start).take(6)
+                            {
+                                let y = 245 + (i - start) * 56;
+                                u.rect(
+                                    282,
+                                    y,
+                                    960,
+                                    48,
+                                    if i == self.selected { 0x222c1c } else { PANEL },
+                                );
+                                u.text(
+                                    297,
+                                    y + 12,
+                                    14,
+                                    &target.name.chars().take(86).collect::<String>(),
+                                    WHITE,
+                                );
+                                u.text(1090, y + 12, 12, "WRITABLE", LIME);
+                            }
+                            u.text(282,599,12,"NORMAL FILE COPY / SOURCE STAYS ENCRYPTED / EXISTING FILES ARE NOT REPLACED",AMBER);
+                        }
+                    } else if let Some((_, p)) = &self.browse {
                         u.heading("DISK GATE / TEMPORARY READ GRANT","SELECT AN IMPORT","[ENTER] OPEN DIRECTORY / IMPORT FILE    [BACKSPACE] PARENT    [ESC] REVOKE");
                         u.text(284, 218, 12, &p.chars().take(112).collect::<String>(), LIME);
                         let start = self.selected.saturating_sub(7);
@@ -552,6 +603,11 @@ impl App {
                     "This erases the selected removable destination. Type CLONE followed by its disk number, for example CLONE 2.",
                     false,
                 ),
+                Prompt::Export(_) => (
+                    "SAVE A NORMAL PC FILE",
+                    "Type EXPORT to save the original unencrypted file in NULLGRAV_EXPORTS on the selected drive. Anyone with that copy can read it. Existing files are kept.",
+                    false,
+                ),
             };
             u.modal(t, d, &m.input, secret);
         }
@@ -588,6 +644,27 @@ impl App {
                 }
                 Err(e) => self.notify(e, true),
             }
+        }
+    }
+    fn begin_export(&mut self) {
+        if self.key.is_none() {
+            self.notify("UNLOCK THE VAULT BEFORE EXPORTING", true);
+            return;
+        }
+        let Some(file) = self.files.get(self.selected).cloned() else {
+            return;
+        };
+        let name = self
+            .names
+            .get(self.selected)
+            .map(|v| v.0.clone())
+            .unwrap_or_else(|| file.name.clone());
+        self.viewer = None;
+        self.goto(2);
+        self.exporting = Some((file.name, Zeroizing::new(name)));
+        match self.storage.export_targets() {
+            Ok(t) => self.export_targets = t,
+            Err(e) => self.notify(format!("EXPORT TARGETS / {e}"), true),
         }
     }
     fn submit(&mut self, u: &mut Ui, screen: &mut Screen) {
@@ -672,6 +749,39 @@ impl App {
                         format!("CLONE FAILED / DESTINATION MAY BE INCOMPLETE / {e}"),
                         true,
                     ),
+                }
+            }
+            Prompt::Export(i) => {
+                if !m.input.eq_ignore_ascii_case("EXPORT") {
+                    self.notify("TYPE EXPORT TO SAVE A NORMAL PC COPY", true);
+                    return;
+                }
+                let Some(target) = self.export_targets.get(i).cloned() else {
+                    return;
+                };
+                let Some((object, _)) = self.exporting.take() else {
+                    return;
+                };
+                let Some(key) = self.key.as_ref() else {
+                    self.notify("VAULT IS LOCKED", true);
+                    return;
+                };
+                u.notice(
+                    "AUTHENTICATING ORIGINAL / WRITING AND VERIFYING PLAINTEXT COPY",
+                    false,
+                );
+                screen.show(u);
+                let result = self.storage.export_plaintext(&object, key, &target);
+                self.goto(1);
+                match result {
+                    Ok((name, hash)) => self.notify(
+                        format!(
+                            "EXPORTED / {name} / SHA256 {} / VM: Q THEN WINDOWS HELPER SAVES TO C:",
+                            &hash[..16]
+                        ),
+                        false,
+                    ),
+                    Err(e) => self.notify(format!("EXPORT INCOMPLETE / {e}"), true),
                 }
             }
         }
@@ -762,6 +872,10 @@ impl App {
                     u.signal.motion = !u.signal.motion;
                     return true;
                 }
+                'e' if self.page == 1 => {
+                    self.begin_export();
+                    return true;
+                }
                 _ => {}
             }
         }
@@ -800,6 +914,10 @@ impl App {
                 self.selected = (self.selected + 1).min(self.count().saturating_sub(1))
             }
             Key::Special(ScanCode::ESCAPE) => {
+                if self.exporting.is_some() {
+                    self.goto(1);
+                    return true;
+                }
                 self.storage.revoke_all();
                 self.browse = None;
                 self.entries.clear();
@@ -813,7 +931,16 @@ impl App {
                     'n' => self.prompt(Prompt::Create),
                     'i' => self.goto(2),
                     'r' => {
-                        if self.page == 5 {
+                        if self.exporting.is_some() {
+                            let _ = self.storage.refresh_volumes();
+                            match self.storage.export_targets() {
+                                Ok(t) => {
+                                    self.export_targets = t;
+                                    self.selected = 0;
+                                }
+                                Err(e) => self.notify(e, true),
+                            }
+                        } else if self.page == 5 {
                             u.signal
                                 .set_sample(storage::random_with_source::<32>().ok());
                             if u.signal.sample.is_some() {
@@ -847,7 +974,11 @@ impl App {
                         }
                     }
                     '\r' => {
-                        if self.browse.is_some() {
+                        if self.exporting.is_some() {
+                            if self.selected < self.export_targets.len() {
+                                self.prompt(Prompt::Export(self.selected));
+                            }
+                        } else if self.browse.is_some() {
                             self.import_selected(u, screen);
                         } else {
                             match self.page {

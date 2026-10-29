@@ -1,5 +1,6 @@
 //! Firmware-backed storage broker. This is an application policy, NOT a
 //! hardware isolation boundary; UEFI itself and every native parser are trusted.
+mod export;
 mod purge;
 use alloc::{
     alloc::{Layout, alloc_zeroed, dealloc},
@@ -9,6 +10,7 @@ use alloc::{
     vec::Vec,
 };
 use core::ptr::NonNull;
+pub use export::ExportTarget;
 use nullgrav_vault::{self as vault, Access, Disk, FileCipher, META_LEN, MasterKey, TAG_LEN};
 pub use purge::Unlock;
 use sha2::{Digest, Sha256};

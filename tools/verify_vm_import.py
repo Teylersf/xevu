@@ -64,7 +64,7 @@ def main():
         blocks=qemu.command('query-block')
         assert any(b.get('inserted',{}).get('file')==str(image) and b['inserted'].get('ro')for b in blocks)
         assert digest(OUT/'boot-test.img')==boot_hash
-        result={'image_sha256':digest(qemu.ROOT/'dist/nullgrav-0.3.0-x86_64.img'),
+        result={'image_sha256':digest(qemu.ROOT/'dist/nullgrav-0.4.0-x86_64.img'),
             'live_read_only_transfer_attached':True,'native_import_and_view_observed':True,
             'source_file_and_transfer_image_unchanged':True,'other_virtual_disks_unchanged':True,
             'vault_disk_retained_across_restart':True,'latest_transfer_reattached_read_only':True,

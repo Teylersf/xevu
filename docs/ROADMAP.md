@@ -5,7 +5,8 @@ reviewable. It does not fulfill the full standalone-OS or classified-data goal.
 
 | Stage | Required result | Current state |
 | --- | --- | --- |
-| Native preview | Boot image, UI, encrypted vault, controlled import, native limited viewers, clone verification | Implemented; emulator evidence in VERIFICATION.md |
+| Native preview | Boot image, UI, encrypted vault, controlled import/export, native limited viewers, clone verification | Implemented; emulator evidence in VERIFICATION.md |
+| Ordinary PC export | Restore original filenames and bytes into a usable PC filesystem | Native removable FAT and Windows companion folder output implemented; direct native NTFS writes remain unsupported |
 | J3455 validation | Boot the exact release on the real machine; identify firmware, reader, keyboard, pointer and display behavior | Hardware/media access needed |
 | Standalone kernel | ExitBootServices, owned memory map/page tables, scheduling, interrupt/exception handling, trusted entropy and allocator | Not implemented |
 | Device enforcement | Native xHCI/HID/storage, AHCI and relevant SDHCI support; default-deny capabilities; DMA protections on supported hardware | Not implemented |

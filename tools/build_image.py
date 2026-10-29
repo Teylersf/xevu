@@ -34,8 +34,10 @@ def lfn_entries(name,alias):
     return out
 
 class FatImage:
-    def __init__(self,size_mib=256):
+    def __init__(self,size_mib=256,label='NULLGRAV'):
         if not 64<=size_mib<=32768:raise ValueError('image size must be 64..32768 MiB')
+        if not label or len(label)>11 or not label.isascii() or any(not(c.isalnum()or c in '_- ')for c in label):raise ValueError('Use a short ASCII FAT volume label')
+        self.label=label.upper()
         self.size=size_mib*1024*1024;self.start=2048;self.total=self.size//512-self.start
         self.reserved=32;self.spc=1 if size_mib<=512 else 8
         self.fats=1
@@ -53,6 +55,13 @@ class FatImage:
             node=node.children[name]
         if parts[-1] in node.children:raise ValueError('duplicate image path')
         child=Node(parts[-1],bytes(data),node);node.children[child.name]=child;self.nodes.append(child)
+    def mkdir(self,path):
+        node=self.root
+        for name in path.replace('\\','/').strip('/').split('/'):
+            if name not in node.children:
+                child=Node(name,parent=node);node.children[name]=child;self.nodes.append(child)
+            node=node.children[name]
+            if not node.directory:raise ValueError('Directory conflicts with a file')
     def directory_bytes(self,node):
         entries=[]
         def entry(alias,cluster,size,directory):
@@ -60,6 +69,8 @@ class FatImage:
             struct.pack_into('<H',e,20,cluster>>16);struct.pack_into('<H',e,26,cluster&0xffff);struct.pack_into('<I',e,28,size);return bytes(e)
         if node is not self.root:
             entries.append(entry(b'.          ',node.cluster,0,True));entries.append(entry(b'..         ',node.parent.cluster if node.parent is not self.root else 0,0,True))
+        elif self.label!='NULLGRAV':
+            label=bytearray(32);label[:11]=self.label.ljust(11).encode('ascii');label[11]=0x08;entries.append(bytes(label))
         # Reserve literal 8.3 names before assigning long-name aliases. A large
         # batch can otherwise generate an alias used by a later real filename.
         reserved={short_name(c.name,1)[0] for c in node.children.values() if not short_name(c.name,1)[1]}
@@ -91,7 +102,7 @@ class FatImage:
         with destination.open('wb') as f:
             f.truncate(self.size)
             mbr=bytearray(512);mbr[446]=0x80;mbr[450]=0xef;struct.pack_into('<II',mbr,454,self.start,self.total);mbr[510:]=b'\x55\xaa';f.write(mbr)
-            b=bytearray(512);b[:3]=b'\xeb\x58\x90';b[3:11]=b'NULLGRAV';struct.pack_into('<H',b,11,512);b[13]=self.spc;struct.pack_into('<H',b,14,self.reserved);b[16]=2;b[21]=0xf8;struct.pack_into('<HH',b,24,63,255);struct.pack_into('<I',b,28,self.start);struct.pack_into('<I',b,32,self.total);struct.pack_into('<I',b,36,self.fats);struct.pack_into('<I',b,44,self.root.cluster);struct.pack_into('<HH',b,48,1,6);b[64]=0x80;b[66]=0x29;struct.pack_into('<I',b,67,0x4e475630);b[71:82]=b'NULLGRAV   ';b[82:90]=b'FAT32   ';b[510:]=b'\x55\xaa'
+            b=bytearray(512);b[:3]=b'\xeb\x58\x90';b[3:11]=b'NULLGRAV';struct.pack_into('<H',b,11,512);b[13]=self.spc;struct.pack_into('<H',b,14,self.reserved);b[16]=2;b[21]=0xf8;struct.pack_into('<HH',b,24,63,255);struct.pack_into('<I',b,28,self.start);struct.pack_into('<I',b,32,self.total);struct.pack_into('<I',b,36,self.fats);struct.pack_into('<I',b,44,self.root.cluster);struct.pack_into('<HH',b,48,1,6);b[64]=0x80;b[66]=0x29;struct.pack_into('<I',b,67,0x4e475630);b[71:82]=self.label.ljust(11).encode('ascii');b[82:90]=b'FAT32   ';b[510:]=b'\x55\xaa'
             info=bytearray(512);struct.pack_into('<I',info,0,0x41615252);struct.pack_into('<I',info,484,0x61417272);struct.pack_into('<II',info,488,0xffffffff,0xffffffff);struct.pack_into('<I',info,508,0xaa550000)
             for sector,data in [(0,b),(1,info),(6,b),(7,info)]:f.seek((self.start+sector)*512);f.write(data)
             for i in range(2):f.seek((self.start+self.reserved+i*self.fats)*512);f.write(fat)
@@ -102,8 +113,8 @@ class FatImage:
             return hashlib.file_digest(check,'sha256').hexdigest()
 
 def main():
-    root=Path(__file__).resolve().parents[1];p=argparse.ArgumentParser();p.add_argument('--boot',type=Path,default=root/'target/x86_64-unknown-uefi/release/nullgrav-boot.efi');p.add_argument('--output',type=Path,default=root/'dist/nullgrav-0.3.0-x86_64.img');p.add_argument('--size-mib',type=int,default=256);p.add_argument('--tree',type=Path);args=p.parse_args()
-    image=FatImage(args.size_mib);image.add('EFI/BOOT/BOOTX64.EFI',args.boot.read_bytes());image.add('NULLGRAV/README.TXT',b'NULLGRAV 0.3 ENGINEERING PREVIEW\r\nNo secret content included. Not audited or approved for classified data.\r\nPress N to create a vault; U to unlock; 1-6 to navigate; Q to shut down.\r\n')
+    root=Path(__file__).resolve().parents[1];p=argparse.ArgumentParser();p.add_argument('--boot',type=Path,default=root/'target/x86_64-unknown-uefi/release/nullgrav-boot.efi');p.add_argument('--output',type=Path,default=root/'dist/nullgrav-0.4.0-x86_64.img');p.add_argument('--size-mib',type=int,default=256);p.add_argument('--tree',type=Path);args=p.parse_args()
+    image=FatImage(args.size_mib);image.add('EFI/BOOT/BOOTX64.EFI',args.boot.read_bytes());image.add('NULLGRAV/README.TXT',b'NULLGRAV 0.4 ENGINEERING PREVIEW\r\nNo secret content included. Not audited or approved for classified data.\r\nPress N to create a vault; U to unlock; 1-6 to navigate; Q to shut down.\r\n')
     if args.tree:
         for file in sorted(args.tree.rglob('*')):
             if file.is_file():image.add(file.relative_to(args.tree).as_posix(),file.read_bytes())

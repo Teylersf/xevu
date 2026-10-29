@@ -106,3 +106,26 @@ Uses the same bounded frame records with eight-byte magic `NGDOC001`, frame-rate
 field 1, and one JPEG per rendered PDF page. The native viewer disables automatic
 advance and uses left/right navigation. This is a page-image container, not a PDF
 renderer. It is plaintext until wrapped inside an NGV object.
+
+## Plaintext export and handoff receipts (0.4)
+
+Export authenticates the complete NGV object and writes its original payload,
+without decoding or conversion, under `NULLGRAV_EXPORTS/<original basename>` on
+the selected writable removable FAT volume. The boot medium and internal or
+read-only media are excluded. Windows device names and incompatible basenames
+are rejected; an existing destination file is never replaced.
+
+After staging, renaming and SHA-256 readback of the final file, the native writer
+creates `NG_EXPORT_LOG/<random identifier>.JSON` containing a UTF-8 JSON object:
+
+```json
+{"version":1,"name":"Research.pdf","bytes":1234,"sha256":"<64 lowercase hex digits>"}
+```
+
+The Windows companion waits for guest shutdown, reads only this dedicated FAT
+bridge image and validates the bounded receipts and complete file hashes before
+writing ordinary files into the selected Windows folder. Receipts are limited
+to 4096 bytes, payloads to 128 MiB each and the batch to 256 MiB. These unkeyed
+hashes check transfer consistency; they do not authenticate a sender. The helper
+does not receive a vault key. Original timestamps, permissions and alternate
+streams are not part of the encrypted envelope or restored payload.

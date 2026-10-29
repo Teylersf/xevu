@@ -1,0 +1,17 @@
+{
+  "source_native_version": "0.3.0",
+  "new_native_version": "0.4.0",
+  "legacy_efi_sha256": "647aba288385abf766c8f1ccd7abc87acedc6679357cab3711e623c4685777be",
+  "new_efi_sha256": "81f33fa95a8c19fd025ecc9be80b71252fd9d17bf75de93ca5b339ede7b71c34",
+  "source_image_unchanged": true,
+  "encrypted_objects_preserved": true,
+  "failed_attempts_preserved_before_unlock": 2,
+  "original_passphrase_unlock_verified": true,
+  "successful_unlock_reset_count": true,
+  "windows_powershell_wsl_full_flow_verified": true,
+  "destination_drive": "C:",
+  "decrypted_file_sha256": "69000fc5bdb72569e193a12c83a811c6d2e845c42589ca3f776864f8ef9393b3",
+  "exact_original_filename_preserved": true,
+  "physical_devices_attached": false,
+  "fixture_only": true
+}

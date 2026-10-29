@@ -9,7 +9,7 @@ Lake J3455 physical machine and a removable USB/SD target have not been tested.
 
 ## Automated checks
 
-- 16 Rust tests pass: encrypted round trips, empty/boundary-sized objects,
+- 17 Rust tests pass: encrypted round trips, empty/boundary-sized objects,
   metadata confidentiality, wrong keys/passwords, corruption, truncation,
   appended bytes, cross-file/chunk substitution, bounded KDF parameters,
   password/name/size restrictions, nonce-reuse refusal, device grants/revocation,
@@ -113,12 +113,43 @@ The guest image is byte-for-byte identical to 0.3.0. All test data were public
 synthetic fixtures; no physical disk was attached or written. Host file-picker
 selections are stored only in ignored local state, never release artifacts.
 
+## 0.4.0 original-file export and upgrade
+
+Seventeen Rust tests and ten focused Python tests pass. Export policy rejects
+boot/internal/read-only destinations and Windows device/path names. The native
+UI imported original text, PNG, PDF and MP4 fixtures, then exported all four with
+original names and matching SHA-256 hashes. No media conversion occurred. The
+vault ciphertext and other virtual disks remained unchanged. Canceling export
+made no writes. Corrupting all four source data tags caused authentication
+failure with the fresh destination image entirely unchanged. See
+[export-verification.json](export-verification.json).
+
+The exported originals were saved to an ordinary C: NTFS folder. PNG and PDF
+opened with independent host readers; the MP4 retained both video and audio
+streams. Full file hashes matched the originals. See
+[windows-copy-verification.json](windows-copy-verification.json).
+
+A real 0.3.0 fixture vault was migrated into 0.4.0 with two failed attempts.
+Encrypted objects and both raw retry slots were preserved and read back; the
+source image was unchanged. Its original passphrase unlocked the upgraded vault
+and reset the count normally. The actual Windows PowerShell-to-WSL export
+wrapper attached a writable bridge, waited for guest Q shutdown and restored
+that legacy file to C: with matching name/hash. See
+[upgrade-export-verification.json](upgrade-export-verification.json).
+
+These flows use regular virtual disks only. The Windows companion supplies C:
+output through normal Windows file APIs; direct offline native NTFS writes and
+physical J3455/SD export are not claimed. Source filesystem timestamps, ACLs and
+alternate streams are outside the envelope. Screenshots:
+[export confirmation](images/export-confirmation.png),
+[verified native export](images/export-complete.png).
+
 ## Build artifacts
 
 The final clean, secret-free release image is 268,435,456 bytes.
 
-- Image SHA-256: `493f2b7524b399b4d0732ca259245c492280288f17bb303cee75e38e16b81e25`
-- EFI executable SHA-256: `647aba288385abf766c8f1ccd7abc87acedc6679357cab3711e623c4685777be`
+- Image SHA-256: `3576e3b0ff14763d7070f8f418de29fffb23d1751ac2e2e2403a1b6a1eef8132`
+- EFI executable SHA-256: `81f33fa95a8c19fd025ecc9be80b71252fd9d17bf75de93ca5b339ede7b71c34`
 
 The package is read back from the ZIP and every payload is SHA-256 compared with
 the corresponding build artifact. Test vaults, real secrets, OVMF state,

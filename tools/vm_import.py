@@ -6,7 +6,7 @@ plaintext copies and stay in ignored test-output/windows-imports until removed.
 from pathlib import Path
 import argparse, hashlib, json, os, stat, subprocess, sys, uuid
 from build_image import FatImage
-import qemu
+import qemu,vm_session
 
 ROOT=Path(__file__).resolve().parents[1]
 MAX_FILE=128*1024*1024
@@ -68,7 +68,7 @@ def safe_image(image):
 
 def attach_transfer(image, session_dir=None):
     image=safe_image(image)
-    directory=(session_dir or ROOT/'test-output/interactive-vm-0.3.0').resolve()
+    directory=Path(session_dir).resolve() if session_dir else vm_session.running_session()
     if (ROOT/'test-output').resolve() not in directory.parents:
         raise ValueError('Use a NULLGRAV test-output VM session.')
     qemu.OUT=directory;qemu.STATE=directory/'qemu-session.json'

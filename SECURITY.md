@@ -40,6 +40,28 @@ against a compromised viewer or malicious kernel/firmware-level code.
 
 ## Important limits
 
+- Plaintext export is explicit and requires an unlocked vault and selected
+  writable removable destination. The boot medium, internal firmware system
+  partitions and read-only import drives are refused. Every source chunk
+  authenticates before writing; the temporary and renamed destination files are
+  SHA-256 checked before a commit receipt is written. These receipts detect
+  accidental transfer corruption; they are not sender signatures.
+- The Windows companion attaches only a dedicated virtual FAT image. It receives
+  no vault key, waits for VM shutdown, validates bounded receipt names/hashes and
+  writes new ordinary files into the chosen Windows folder. It never exposes C:
+  as a raw guest disk. Successful output is flushed/read back before temporary
+  bridge cleanup. Errors or interruption can leave plaintext on the destination
+  or bridge. Existing different files are not overwritten. Portable basenames
+  follow [Microsoft's filename rules](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file).
+- Exports are readable outside the vault and survive later boot-medium erasure.
+  Raw original contents and filenames are retained; source filesystem timestamps,
+  ACLs and alternate data streams are not. A converted NGD/NGM cannot recreate an
+  original PDF/MP4 that was never imported. No native NTFS writer is included.
+- VM migration requires the old VM to be stopped, retains the original image,
+  copies ciphertext/key capsules without decrypting and verifies raw retry-slot
+  preservation. Conflicting/corrupt retry state and triggered erasure are refused.
+  Backups remain independent copies; the software retry limit cannot revoke them.
+
 - The Windows file picker copies only explicitly selected files into a plaintext
   virtual transfer image under `test-output/windows-imports`. It attaches that
   image read-only, never passes through a physical drive, and retains originals.

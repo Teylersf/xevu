@@ -2,7 +2,7 @@
 import datetime, hashlib, json, time
 import qemu
 
-OUT=qemu.ROOT/'test-output/signals-vm-0.3.0'
+OUT=qemu.ROOT/'test-output/signals-vm-0.4.0'
 
 def digest(path):
     with path.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
@@ -17,7 +17,7 @@ def crop(rgb,x,y,w,h):
 
 def main():
     qemu.OUT=OUT;qemu.STATE=OUT/'qemu-session.json'
-    image=qemu.ROOT/'dist/nullgrav-0.3.0-x86_64.img'
+    image=qemu.ROOT/'dist/nullgrav-0.4.0-x86_64.img'
     started=datetime.datetime.now(datetime.timezone.utc).isoformat()
     qemu.start(image,memory_mib=1024)
     before={n:digest(OUT/n) for n in ['boot-test.img','import-source.img','clone-target.img']}

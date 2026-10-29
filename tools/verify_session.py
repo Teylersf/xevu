@@ -29,7 +29,7 @@ def main():
             print(f'Native session alive after {checkpoint} seconds.',flush=True)
             if checkpoint==45:capture('release-dashboard')
         qemu.key('5');time.sleep(2);capture('long-session-system');elapsed=time.monotonic()-started
-        source=qemu.ROOT/'dist/nullgrav-0.3.0-x86_64.img'
+        source=qemu.ROOT/'dist/nullgrav-0.4.0-x86_64.img'
         with source.open('rb')as f:digest=hashlib.file_digest(f,'sha256').hexdigest()
         receipt={'started_at_utc':wall,'elapsed_seconds':round(elapsed,2),'survived_firmware_watchdog_deadline':True,'native_boot_artwork_observed':splash,'qmp_running':True,'image_sha256':digest,'physical_devices_attached':False,'security_audit':False}
         (qemu.OUT/'long-session-verification.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps(receipt),flush=True)

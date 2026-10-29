@@ -1,0 +1,29 @@
+{
+  "destination_drive": "C:",
+  "windows_ntfs_write_verified": true,
+  "byte_exact_files": [
+    {
+      "name": "02-Image.png",
+      "bytes": 83,
+      "sha256": "bfac020c6d4080484b1bc611fe431ed0317f402cc0faf8b3f8c3066ea49de4dd"
+    },
+    {
+      "name": "04-Video.mp4",
+      "bytes": 6936,
+      "sha256": "2cb76bfb867b4150f2571f25f6fc76b1fe7bd15fa59ccdc68436b8071bfa8e79"
+    },
+    {
+      "name": "03-Document.pdf",
+      "bytes": 868,
+      "sha256": "97949e0833f3430e4143584d492ea7f5e49927e7c62dff56e88530091ff7484b"
+    },
+    {
+      "name": "01-Notes.txt",
+      "bytes": 75,
+      "sha256": "62f303efc18bcdc2314dcbddb4e26c61cf3bca4c0c77ea0f69bd264ad1a5efa6"
+    }
+  ],
+  "normal_png_and_pdf_open_verified": true,
+  "mp4_video_and_audio_streams_verified": true,
+  "private_user_data_used": false
+}
