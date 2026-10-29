@@ -1,6 +1,6 @@
 # Security status and threat model
 
-NULLGRAV 0.1 is an engineering preview. Do not entrust it with sensitive leaks,
+XEVU 0.1 is an engineering preview. Do not entrust it with sensitive leaks,
 government-classified material, or irreplaceable originals. Security properties
 below describe code behavior, not an independent assurance or accreditation.
 
@@ -96,7 +96,7 @@ against a compromised viewer or malicious kernel/firmware-level code.
 - No anti-rollback state exists. An attacker can restore an older valid object,
   omit complete files, or restore an older entire vault snapshot undetected.
 - Counts, padded sizes, directory locations, filesystem timestamps, boot files,
-  and the existence of a NULLGRAV vault remain observable. No plausible-deniability
+  and the existence of a XEVU vault remain observable. No plausible-deniability
   or hidden-volume guarantee is made.
 - Lost passphrases mean lost access. Clones duplicate keys and credentials; they
   are not independently rekeyed recipients. Changing a passphrase/rekeying is not

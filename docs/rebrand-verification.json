@@ -1,0 +1,21 @@
+{
+  "brand": "XEVU",
+  "version": "0.5.0",
+  "image_sha256": "c943aefef15dc959cd25b245b7e5e671cc47ba57e182201da09247f16f6f52a2",
+  "efi_sha256": "80cd1b6d77fc9b9009a36fc85b6527873e3d65b752d0500c584485fd9405cfab",
+  "native_boot_dashboard_and_signal_lab_verified": true,
+  "legacy_source_native_version": "0.4.0",
+  "legacy_source_image_unchanged": true,
+  "legacy_ciphertext_and_key_bytes_preserved": true,
+  "retry_slots_preserved_before_unlock": true,
+  "original_passphrase_unlock_verified": true,
+  "original_file_export_sha256": "69000fc5bdb72569e193a12c83a811c6d2e845c42589ca3f776864f8ef9393b3",
+  "original_filename_preserved": true,
+  "physical_devices_attached": false,
+  "fixture_only": true,
+  "windows_c_folder_copy_verified": true,
+  "normal_windows_file_hash_verified": true,
+  "brand_png_and_pdf_visual_review": true,
+  "transparent_logo_pngs_verified": true,
+  "subsequent_source_build_identical_except_pe_timestamps": true
+}

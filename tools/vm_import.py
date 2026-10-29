@@ -70,11 +70,11 @@ def attach_transfer(image, session_dir=None):
     image=safe_image(image)
     directory=Path(session_dir).resolve() if session_dir else vm_session.running_session()
     if (ROOT/'test-output').resolve() not in directory.parents:
-        raise ValueError('Use a NULLGRAV test-output VM session.')
+        raise ValueError('Use an XEVU test-output VM session.')
     qemu.OUT=directory;qemu.STATE=directory/'qemu-session.json'
     try:qemu.command('query-status')
     except (OSError,ValueError,FileNotFoundError) as e:
-        raise ValueError('Start TEST NULLGRAV VM.cmd first, then add files. Your existing vault will be kept.') from e
+        raise ValueError('Start TEST XEVU VM.cmd first, then add files. Your existing vault will be kept.') from e
     # New devices only: never detach a source that the user may be reading.
     devices=qemu.command('query-block')
     if len(devices)>=10:raise ValueError('Several transfer drives are attached. Shut down with Q and restart the VM, then retry. The vault is retained.')

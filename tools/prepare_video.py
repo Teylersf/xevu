@@ -9,7 +9,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('input',type=Path);p.add_argument('output',type=Path);p.add_argument('--fps',type=int,default=10);p.add_argument('--seconds',type=int,default=60);a=p.parse_args()
     if a.output.exists():raise SystemExit('Output exists; refusing overwrite.')
     if not 1<=a.fps<=30 or not 1<=a.seconds<=300:raise SystemExit('fps 1..30; seconds 1..300')
-    with tempfile.TemporaryDirectory(prefix='nullgrav-video-') as temp:
+    with tempfile.TemporaryDirectory(prefix='xevu-video-') as temp:
         pattern=str(Path(temp)/'frame-%06d.jpg')
         subprocess.run(['ffmpeg','-nostdin','-v','error','-i',str(a.input),'-t',str(a.seconds),'-vf',f'fps={a.fps},scale=640:360:force_original_aspect_ratio=decrease','-q:v','5','-an',pattern],check=True)
         files=sorted(Path(temp).glob('*.jpg'))

@@ -1,5 +1,6 @@
 #![no_std]
-//! NULLGRAV's experimental file envelope. Existing cryptographic primitives;
+//! XEVU's experimental file envelope (original NULLGRAV v1 identifiers retained).
+//! Existing cryptographic primitives;
 //! the composition and implementation have NOT received an independent audit.
 extern crate alloc;
 pub mod retry;

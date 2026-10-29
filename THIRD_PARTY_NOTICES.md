@@ -1,6 +1,6 @@
 # Third-party notices
 
-These notices accompany the compiled NULLGRAV preview. Project code is MIT licensed. Embedded fonts retain the OFL notices under assets/fonts/.
+These notices accompany the compiled XEVU preview. Project code is MIT licensed. Embedded fonts retain the OFL notices under assets/fonts/.
 
 ## adler2 2.0.1
 

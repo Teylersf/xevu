@@ -40,7 +40,7 @@ def migrate(source_dir,destination_dir,efi):
     if allowed not in source_dir.parents or allowed not in destination_dir.parents or source_dir==destination_dir:raise ValueError('Use distinct test-output VM folders')
     if current_running(source_dir):raise ValueError('Press Q in the old VM before upgrading; no files were changed')
     source=source_dir/'boot-test.img';dest=destination_dir/'boot-test.img'
-    if dest.exists():raise FileExistsError('The updated VM already has a disk. Use TEST NULLGRAV VM.cmd; it was not replaced.')
+    if dest.exists():raise FileExistsError('The updated VM already has a disk. Use TEST XEVU VM.cmd; it was not replaced.')
     records=[];copied=[];total=0;header=None
     with FatReader(source)as old:
         journal=old.read_at(16*512,1024)
@@ -85,11 +85,15 @@ def migrate(source_dir,destination_dir,efi):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--wait',action='store_true');p.add_argument('--launch',action='store_true');a=p.parse_args()
     try:
-        old=vm_session.interactive(vm_session.LEGACY_VERSION);new=vm_session.interactive()
+        candidates=[vm_session.interactive(v)for v in vm_session.LEGACY_VERSIONS if (vm_session.interactive(v)/'boot-test.img').exists()]
+        if not candidates:raise FileNotFoundError('No earlier VM vault exists. Run TEST XEVU VM.cmd to create a new test VM.')
+        live=[d for d in candidates if current_running(d)]
+        if len(live)>1:raise ValueError('More than one earlier VM is running. Close the older duplicate first; all vaults were kept.')
+        old=live[0]if live else candidates[0];new=vm_session.interactive()
         if a.wait and current_running(old):
-            print('Press Q in the old NULLGRAV VM when ready. Its encrypted vault and retry count will be copied; the old disks stay as a backup.',flush=True)
+            print('Press Q in the old XEVU/NULLGRAV VM when ready. Its encrypted vault and retry count will be copied; the old disks stay as a backup.',flush=True)
             while current_running(old):time.sleep(1)
-        result=migrate(old,new,ROOT/'dist/BOOTX64.EFI');print(json.dumps(result,indent=2),flush=True)
+        result=migrate(old,new,ROOT/'dist/xevu-BOOTX64.EFI');print(json.dumps(result,indent=2),flush=True)
         if a.launch:
             qemu.OUT=new;qemu.STATE=new/'qemu-session.json';qemu.start(resume=True,display='gtk',memory_mib=4096)
     except Exception as e:

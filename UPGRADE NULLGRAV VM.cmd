@@ -1,3 +1,3 @@
 @echo off
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\upgrade-vm.ps1"
-pause
+rem Compatibility alias for existing shortcuts.
+call "%~dp0UPGRADE XEVU VM.cmd" %*

@@ -1,0 +1,28 @@
+{
+  "brand": "XEVU",
+  "sha256": {
+    "assets/brand/identity.json": "db67b3b69563e0fd4450c12404f228979eb452d05db4beb430b3f2584ff3b818",
+    "assets/brand/xevu-mark-graphite.png": "81052da409e3ab86815eebb6b98824a61c7d61ee14e27b2114af17e98d0cef68",
+    "assets/brand/xevu-mark-graphite.svg": "45cfcd4dbcfc257dd42357d98971ea180a6656cd51e8d8ef86b1e5c7cf39c1f8",
+    "assets/brand/xevu-mark-ivory.png": "d2ad0fa9205f0a46ba79be00e1a47eb3ecd3b1986fe2b43de70efecb94233e7a",
+    "assets/brand/xevu-mark-ivory.svg": "8cb749cf26ad67ef896c4bf8fc7287956133151f7c88df88d0c8720ac9e4e012",
+    "assets/brand/xevu-mark-lime.png": "71853fccea5d8f02e50d4ac8a7d63e195acfef463c272ed15e3d61912af317d1",
+    "assets/brand/xevu-mark-lime.svg": "bed157802e8e30d56c7cf8ea5b60fe1c473ed1145c23f3dd2275b7645864811d",
+    "assets/brand/xevu-wordmark-graphite.png": "240510982c276869a2d5a04b82d08547483ff3c900bd4ed670a505f08cd13ac4",
+    "assets/brand/xevu-wordmark-graphite.svg": "fa6d1a38907ac94843da94fcc78c2b46a90aa17e7ae0324af35071808065bdbc",
+    "assets/brand/xevu-wordmark-ivory.png": "8b1af1090b8b60f174af223aad6238eaaa1a0179a0709f9597b8afd8291a6179",
+    "assets/brand/xevu-wordmark-ivory.svg": "adfdef90763e69da478d4f66dacbabbcab9b7b90c17825c1dd6159ce56da738f",
+    "assets/brand/xevu-wordmark-lime.png": "6108556a3ff80c656078b6ded5b2a24bd4575a2bdf2d86b74d1566a3a5da8b19",
+    "assets/brand/xevu-wordmark-lime.svg": "57455e76e0626c2a90181fdd5d75d39f7936354ecd5ae612a7a8f136be289a96",
+    "marketing/BRAND.md": "ba540d40e1f154185ea7553f3547ab8fb43264767287df4284edfe79a391d0ce",
+    "marketing/COPY.md": "4178d053bd612296bb231c2e027b0bb57be45e2000ed576207f2a9ad1e008a53",
+    "marketing/NAME_RESEARCH.md": "ba8e31fa9a76412be1fceab269379075dec963303e5f40bc653300531c4e4a4f",
+    "marketing/xevu-brand-board.png": "045d4380eb06b35363820643d0d11b4f280e774e3e773b1cf93afebbbd55b2f6",
+    "marketing/xevu-launch-1600x900.png": "188fa79cf0312c098a0ee58498b6076c4ab97090ae45054c1a56511f41a5efae",
+    "marketing/xevu-social-1080x1080.png": "8dbfe1c6b808b1e42aebcf336b7046acff03695c211c41e57a3d8a227412a30b",
+    "marketing/xevu-social-1080x1350.png": "0d437e7dace28f2580a2bd56ec4741374bb935aa479e7badbeb022e0d004bd1f",
+    "marketing/xevu-social-1200x630.png": "8564987092fe64b706905781fea245b99f1e44651d441adbafae2e2e4a85f441",
+    "output/pdf/xevu-brand-guide.pdf": "534a0d37c31058581676c477c34251806b5b87b40f95725553d6cfe9cd3e4b08",
+    "output/pdf/xevu-product-sheet.pdf": "81489a0c8b44d95ccefbcc28a3a44e2944b66f56bfda94947871882566e49e0c"
+  }
+}

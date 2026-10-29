@@ -38,7 +38,7 @@ def start(image=None,resume=False,display='none',memory_mib=512):
     if STATE.exists():
         try:command('query-status');raise SystemExit('A test VM is already running; stop it explicitly first.')
         except (OSError,ValueError):pass
-    source=image or ROOT/'dist/nullgrav-0.4.0-x86_64.img'
+    source=image or ROOT/'dist/xevu-0.5.0-x86_64.img'
     source=Path(source).resolve()
     if not source.is_file() or source.suffix.lower()!='.img':raise SystemExit('Use a regular test .img file, never a physical device.')
     boot=OUT/'boot-test.img'
@@ -52,7 +52,7 @@ def start(image=None,resume=False,display='none',memory_mib=512):
     target=OUT/'clone-target.img'
     if not resume or not target.exists():
         with target.open('wb')as f:f.truncate(256*1024*1024)
-    data=FatImage(64);data.add('FIELD.TXT',b'NULLGRAV PUBLIC TEST FIXTURE\r\nIndependent antigravity research transport.\r\nThis is not sensitive content.\r\n')
+    data=FatImage(64);data.add('FIELD.TXT',b'XEVU PUBLIC TEST FIXTURE\r\nAn offline file workspace for every kind of work.\r\nThis is not sensitive content.\r\n')
     w,h=240,160;pixels=bytearray()
     for y in range(h):
         for x in range(w):pixels.extend((40+(x%100),60+(y%100),100 if (x//20+y//20)%2 else 210))
@@ -65,7 +65,7 @@ def start(image=None,resume=False,display='none',memory_mib=512):
     var=OUT/'OVMF_VARS.fd'
     if not resume or not var.exists():shutil.copyfile('/usr/share/OVMF/OVMF_VARS_4M.fd',var)
     with socket.socket()as reserve:reserve.bind(('127.0.0.1',0));port=reserve.getsockname()[1]
-    cmd=['qemu-system-x86_64','-name','NULLGRAV 0.4.0 - Signal Console' if display!='none' else 'NULLGRAV 0.4.0 - Headless test VM','-machine','q35,accel=tcg','-cpu','max','-m',str(memory_mib)+'M','-display',display,'-net','none','-no-reboot','-qmp',f'tcp:127.0.0.1:{port},server=on,wait=off','-drive','if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd','-drive',f'if=pflash,format=raw,file={var}','-device','qemu-xhci,id=xhci','-device','usb-kbd,bus=xhci.0','-device',('usb-mouse' if display=='none' else 'usb-tablet')+',bus=xhci.0','-object','rng-random,filename=/dev/urandom,id=rng0','-device','virtio-rng-pci,rng=rng0']
+    cmd=['qemu-system-x86_64','-name','XEVU 0.5.0 - Signal Console' if display!='none' else 'XEVU 0.5.0 - Headless test VM','-machine','q35,accel=tcg','-cpu','max','-m',str(memory_mib)+'M','-display',display,'-net','none','-no-reboot','-qmp',f'tcp:127.0.0.1:{port},server=on,wait=off','-drive','if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd','-drive',f'if=pflash,format=raw,file={var}','-device','qemu-xhci,id=xhci','-device','usb-kbd,bus=xhci.0','-device',('usb-mouse' if display=='none' else 'usb-tablet')+',bus=xhci.0','-object','rng-random,filename=/dev/urandom,id=rng0','-device','virtio-rng-pci,rng=rng0']
     media=[(boot,False),(OUT/'import-source.img',True),(target,False)]
     saved_import=OUT/'last-windows-import.json'
     if saved_import.exists():
@@ -87,7 +87,7 @@ def start(image=None,resume=False,display='none',memory_mib=512):
 def main():
     global OUT,STATE
     p=argparse.ArgumentParser();p.add_argument('action',choices=['start','run','resume','capture','key','text','stop','status']);p.add_argument('value',nargs='?',default='screen');p.add_argument('--image',type=Path);p.add_argument('--display',choices=['none','gtk','sdl'],default='none');p.add_argument('--memory-mib',type=int,default=512);p.add_argument('--session',choices=['test','interactive'],default='test');a=p.parse_args()
-    if a.session=='interactive':OUT=OUT/'interactive-vm-0.4.0';STATE=OUT/'qemu-session.json'
+    if a.session=='interactive':OUT=OUT/'interactive-vm-0.5.0';STATE=OUT/'qemu-session.json'
     options={'display':a.display,'memory_mib':a.memory_mib}
     if a.action=='start':start(a.image,**options)
     elif a.action=='run':start(a.image,**options).wait()

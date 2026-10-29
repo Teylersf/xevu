@@ -144,12 +144,41 @@ alternate streams are outside the envelope. Screenshots:
 [export confirmation](images/export-confirmation.png),
 [verified native export](images/export-complete.png).
 
+## 0.5.0 XEVU identity and compatibility
+
+The rebrand introduces the XEVU name, original geometric vector mark/wordmark,
+abstract boot artwork and general-purpose file-workspace messaging. Native
+screens were captured from a separate QEMU instance booting the exact 0.5.0
+release image: [boot](images/xevu-boot.png), [dashboard](images/xevu-dashboard.png),
+and [Signal Lab](images/xevu-signals.png). Seventeen Rust tests and ten Python
+transfer/helper tests pass, along with strict host/UEFI Clippy, formatting checks
+and parsing of all PowerShell scripts. The FAT alias regression check now
+correctly excludes the new volume-label entry from its file count.
+
+A stopped 0.4.0 public-fixture vault was migrated to the new native executable.
+Its encrypted objects, key capsule and both retry slots were retained byte for
+byte; the source image stayed unchanged. The original passphrase unlocked it.
+Native E/export restored the original filename and exact bytes, with SHA-256
+`69000fc5bdb72569e193a12c83a811c6d2e845c42589ca3f776864f8ef9393b3`.
+The new Windows helper also saved and verified that original in an ordinary C:
+folder. See [rebrand-verification.json](rebrand-verification.json) and the
+[legacy-file export screen](images/xevu-legacy-export.png).
+
+All six transparent logo PNGs were checked for real alpha; the six SVGs use
+original vector geometry without a font dependency. The launch banner, three
+social sizes, identity board, one-page product PDF and three-page brand PDF were
+rendered and visually reviewed. The PDFs were reopened with an independent
+reader. Their source artwork prompt, identity geometry, licenses and copy are
+included in the brand kit. Branding does not change the crypto, filesystem,
+erasure, firmware-trust or hardware-validation limits described in SECURITY.md.
+Historical receipts and screenshots above retain their original release names.
+
 ## Build artifacts
 
 The final clean, secret-free release image is 268,435,456 bytes.
 
-- Image SHA-256: `3576e3b0ff14763d7070f8f418de29fffb23d1751ac2e2e2403a1b6a1eef8132`
-- EFI executable SHA-256: `81f33fa95a8c19fd025ecc9be80b71252fd9d17bf75de93ca5b339ede7b71c34`
+- Image SHA-256: `c943aefef15dc959cd25b245b7e5e671cc47ba57e182201da09247f16f6f52a2`
+- EFI executable SHA-256: `80cd1b6d77fc9b9009a36fc85b6527873e3d65b752d0500c584485fd9405cfab`
 
 The package is read back from the ZIP and every payload is SHA-256 compared with
 the corresponding build artifact. Test vaults, real secrets, OVMF state,

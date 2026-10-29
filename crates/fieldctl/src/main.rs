@@ -1,15 +1,16 @@
+use fieldctl as xevuctl;
 use std::{env, fs, path::Path};
 use zeroize::Zeroizing;
-fn password() -> fieldctl::Result<Zeroizing<String>> {
+fn password() -> xevuctl::Result<Zeroizing<String>> {
     Ok(Zeroizing::new(rpassword::prompt_password(
         "Vault passphrase (never saved): ",
     )?))
 }
-fn run() -> fieldctl::Result<()> {
+fn run() -> xevuctl::Result<()> {
     let a: Vec<String> = env::args().collect();
     if a.len() < 3 {
         println!(
-            "NULLGRAV / FIELDCTL\n\n  fieldctl init VAULT_DIRECTORY\n  fieldctl add VAULT_DIRECTORY FILE [FILE ...]\n  fieldctl list VAULT_DIRECTORY\n  fieldctl verify VAULT_DIRECTORY\n  fieldctl extract VAULT_DIRECTORY ENCRYPTED_FILENAME OUTPUT_PATH\n\nPassphrases are entered privately, never as command-line arguments.\nThis is experimental software, not approved for classified material."
+            "XEVU / XEVUCTL\n\n  xevuctl init VAULT_DIRECTORY\n  xevuctl add VAULT_DIRECTORY FILE [FILE ...]\n  xevuctl list VAULT_DIRECTORY\n  xevuctl verify VAULT_DIRECTORY\n  xevuctl extract VAULT_DIRECTORY ENCRYPTED_FILENAME OUTPUT_PATH\n\nPassphrases are entered privately, never as command-line arguments.\nThis is experimental software, not approved for classified material."
         );
         return Ok(());
     }
@@ -22,11 +23,11 @@ fn run() -> fieldctl::Result<()> {
         if *p != *confirm {
             return Err("passphrases differ".into());
         }
-        fieldctl::init(root, p.as_bytes())?;
+        xevuctl::init(root, p.as_bytes())?;
         println!("Vault created. Keep the passphrase separately from the drive.");
         return Ok(());
     }
-    let key = fieldctl::unlock(root, p.as_bytes())?;
+    let key = xevuctl::unlock(root, p.as_bytes())?;
     drop(p);
     match a[1].as_str() {
         "add" => {
@@ -34,7 +35,7 @@ fn run() -> fieldctl::Result<()> {
                 return Err("supply at least one input file".into());
             }
             for file in &a[3..] {
-                let id = fieldctl::add(root, &key, Path::new(file))?;
+                let id = xevuctl::add(root, &key, Path::new(file))?;
                 println!("Imported and authenticated: {id}.NGV");
             }
         }
@@ -46,9 +47,9 @@ fn run() -> fieldctl::Result<()> {
             paths.sort();
             for path in paths {
                 let (name, n) = if a[1] == "verify" {
-                    fieldctl::verify(&path, &key)?
+                    xevuctl::verify(&path, &key)?
                 } else {
-                    let (_, c) = fieldctl::inspect(&path, &key)?;
+                    let (_, c) = xevuctl::inspect(&path, &key)?;
                     (c.name.clone(), c.length)
                 };
                 println!(
@@ -67,7 +68,7 @@ fn run() -> fieldctl::Result<()> {
             if name.components().count() != 1 {
                 return Err("encrypted filename must be a basename".into());
             }
-            fieldctl::extract(&root.join(name), &key, Path::new(&a[4]))?;
+            xevuctl::extract(&root.join(name), &key, Path::new(&a[4]))?;
             println!("Authenticated file exported to the explicit plaintext destination.");
         }
         _ => return Err("unknown command".into()),
@@ -76,7 +77,7 @@ fn run() -> fieldctl::Result<()> {
 }
 fn main() {
     if let Err(e) = run() {
-        eprintln!("NULLGRAV: {e}");
+        eprintln!("XEVU: {e}");
         std::process::exit(1);
     }
 }

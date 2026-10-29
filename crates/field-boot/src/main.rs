@@ -257,7 +257,7 @@ impl App {
                 1 => {
                     u.heading(
                         "COMPARTMENT / ENCRYPTED OBJECTS",
-                        "RESEARCH VAULT",
+                        "YOUR VAULT",
                         if self.key.is_some() {
                             "[ENTER] VIEW   [I] IMPORT   [E] EXPORT ORIGINAL   [L] LOCK"
                         } else {
@@ -461,18 +461,18 @@ impl App {
                 4 => {
                     u.heading(
                         "BUILD MANIFEST / HONEST CAPABILITIES",
-                        "SYSTEM BRIEF",
+                        "ABOUT XEVU",
                         concat!(
-                            "NULLGRAV ",
+                            "XEVU ",
                             env!("CARGO_PKG_VERSION"),
                             " / NATIVE RUST / X86-64 UEFI"
                         ),
                     );
                     let lines = [
-                        "PURPOSE       OFFLINE TRANSPORT FOR ANTIGRAVITY RESEARCH",
+                        "PURPOSE       OFFLINE FILE WORKSPACE / GENERAL USE",
                         "PLATFORM      UEFI FIRMWARE DRIVERS / APOLLO LAKE TARGET",
                         "CRYPTO        ARGON2ID / XCHACHA20-POLY1305 / HKDF-SHA256",
-                        "MEDIA         PNG / JPEG / BMP / UTF-8 TEXT / SILENT FIELD MJPEG",
+                        "MEDIA         PNG / JPEG / BMP / UTF-8 TEXT / SILENT MJPEG PREVIEW",
                         "DRIVES        FAT FIRMWARE VOLUMES / READ-ONLY IMPORT / VERIFIED CLONE",
                         "ISOLATION     APPLICATION POLICY ONLY / NO USERSPACE SANDBOX",
                         "STATUS        EXPERIMENTAL / NOT AUDITED / NOT CLASSIFIED APPROVED",
@@ -1137,7 +1137,7 @@ fn main() -> Status {
     if let Err(error) = boot::set_watchdog_timer(0, 0x4e470001, None)
         && error.status() != Status::UNSUPPORTED
     {
-        uefi::println!("NULLGRAV: cannot disable firmware watchdog: {:?}", error);
+        uefi::println!("XEVU: cannot disable firmware watchdog: {:?}", error);
         return error.status();
     }
     uefi::system::with_stdout(|o| {

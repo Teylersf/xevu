@@ -1,35 +1,35 @@
-NULLGRAV 0.4.0 adds explicit export of ordinary PC files.
+XEVU 0.5.0 is the general-purpose rebrand of the earlier NULLGRAV preview.
 
-The vault keeps encrypted objects with hidden original names/content. Select a
-file in the unlocked vault and press E to export its original filename and exact
-unencrypted contents. Every source chunk authenticates before writing; the
-staged and final file are SHA-256 verified. Existing files are not overwritten.
+XEVU (zeh-voo) / Carry what matters.
 
-SAVE FILES TO WINDOWS.cmd asks for a destination folder (including C:), attaches
-a writable WINDOWS_OUT virtual FAT drive, and waits while you export in NULLGRAV.
-After Q shuts the guest down, it restores verified normal files into that folder.
-The helper receives no vault key and never exposes the raw C: drive to the guest.
-Temporary bridge cleanup follows successful output; failures can leave plaintext.
+A new original Crosspoint logo and geometric wordmark, graphite/ivory/lime
+identity, abstract boot artwork and native UI replace the antigravity-specific
+positioning. The workspace now speaks to creative work, business documents,
+research, education and personal files. The public repository is Teylersf/xevu.
 
-On real hardware, native export supports writable FAT USB/SD data drives. Files
-are under NULLGRAV_EXPORTS and work in normal Windows. Direct native NTFS C:
-writes remain unsupported; use the FAT drive after Windows boots. Original
-PDF/MP4/etc. payloads export without conversion even when native viewing is not
-supported. Converted NGD/NGM previews cannot recreate an original never imported.
-File contents/names are preserved; timestamps, ACLs and alternate streams are not.
+The marketing kit includes six editable SVG variants, six transparent PNG logos,
+a 1600x900 launch banner, 1200x630 / 1080x1080 / 1080x1350 social artwork, an
+identity board, launch copy, a one-page product PDF and a three-page brand guide.
+Source geometry, the built-in imagegen prompt, font licenses and naming notes
+are included. Public name screening is preliminary; trademark/domain clearance
+is not claimed.
 
-UPGRADE NULLGRAV VM.cmd copies an existing 0.3 encrypted vault and both retry
-records into 0.4 after the old VM stops. It verifies readback, keeps the original
-VM disks, preserves the password and never resets the failure count. A committed
-erasure trigger, inconsistent state or an existing destination disk is refused.
+The native boot image, Windows launchers and public host CLI use XEVU branding;
+the CLI executable is xevuctl.exe. UPGRADE XEVU VM.cmd preserves an existing
+0.3/0.4 vault, password, ciphertext and both retry slots after the earlier VM
+stops. Old source-checkout launcher names remain aliases. On-disk format-v1
+identifiers and key derivation remain unchanged so existing files stay readable.
 
-Validation: 17 Rust tests, 10 Python tests, strict Clippy/format checks, original
-text/PNG/PDF/MP4 export with matching hashes, ordinary C: writes and independent
-readers, cancellation/tamper rejection, and native legacy-vault migration plus
-the actual Windows export wrapper. Only regular-file images were attached to QEMU; C: testing used ordinary files.
+Validation: 17 Rust tests, 10 Python helper tests, strict host/UEFI Clippy and
+formatting checks, PowerShell parsing, and a real boot of the exact 0.5.0 image.
+A native 0.4.0 fixture vault was migrated, unlocked with its original passphrase,
+and exported with its exact original filename and SHA-256. The original source
+image was unchanged. The new Windows helper also saved and verified that file
+in a normal C: folder. Marketing PNGs, true-alpha logo PNGs and all PDF pages
+were rendered and reviewed. Verification evidence is in docs/VERIFICATION.md.
 
-This remains an unsigned, firmware-backed engineering preview, with no standalone
-kernel isolation, independent security audit or classified-data approval. Three
-failed native unlocks still erase the boot medium. Exported plaintext, old VM
-backups and prior clones remain independent copies. Read README.md, SECURITY.md,
-HOW TO EXPORT FILES.txt and the verification records before use.
+This remains an unsigned, unaudited firmware-backed UEFI engineering preview,
+not a completed standalone OS. Use test data. Three failed native unlocks erase
+the boot medium. Native viewing/filesystem support is limited; native export
+uses removable FAT, while C: output uses the Windows companion. Branding adds
+no audit, regulatory/classified approval, isolation or hardware validation.

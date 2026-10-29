@@ -22,7 +22,7 @@ def wait_for(check,label,timeout=100):
     capture('failed-'+label);raise RuntimeError('Timeout: '+label)
 
 def ready():
-    rgb=capture('boot-candidate');return rgb and rgb[(170*1280+16)*3:(170*1280+16)*3+3]==bytes([196,243,107])
+    rgb=capture('boot-candidate');return rgb and rgb[(170*1280+16)*3:(170*1280+16)*3+3]==bytes([200,255,118])
 
 def stop():
     try:qemu.command('quit')
@@ -104,7 +104,7 @@ def main():
             for _ in range(6):qemu.key('down')
             qemu.key('ret');qemu.text('EXPORT');qemu.key('ret');time.sleep(1.5)
         capture('tampered-export-refused');assert digest(empty)==empty_hash,'Unauthenticated data wrote to destination'
-        result={'image_sha256':digest(qemu.ROOT/'dist/nullgrav-0.4.0-x86_64.img'),
+        result={'image_sha256':digest(qemu.ROOT/'dist/xevu-0.5.0-x86_64.img'),
             'original_file_hashes':expected,'restored_file_hashes':{v['name']:v['sha256']for v in saved},
             'source_names_hidden_in_encrypted_objects':True,'vault_ciphertext_retained':True,
             'cancel_does_not_write':True,'tampered_objects_do_not_write_plaintext':True,

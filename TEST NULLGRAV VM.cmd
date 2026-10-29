@@ -1,4 +1,3 @@
 @echo off
-cd /d "%~dp0"
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tools\start-vm.ps1"
-pause
+rem Compatibility alias for existing shortcuts.
+call "%~dp0TEST XEVU VM.cmd" %*

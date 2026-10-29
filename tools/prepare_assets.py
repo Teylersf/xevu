@@ -28,7 +28,7 @@ for size in [12, 14, 16, 20, 28, 40, 64]:
         pixels.extend(im.tobytes())
     packed = struct.pack("<HHH", size, cw, ch) + advances + pixels
     (ASSETS / f"font-{size}.bin").write_bytes(zlib.compress(packed, 9))
-im = Image.open(ASSETS / "nullgrav-wallpaper.png").convert("RGB").resize((1280, 720), Image.Resampling.LANCZOS)
+im = Image.open(ASSETS / "xevu-artwork.png").convert("RGB").resize((1280, 720), Image.Resampling.LANCZOS)
 (ASSETS / "wallpaper.rgbz").write_bytes(zlib.compress(im.tobytes(), 9))
 manifest = {"fonts": SOURCES, "art": "Built-in imagegen; prompt in assets/ARTWORK.md", "sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in ASSETS.iterdir() if p.suffix in [".bin", ".rgbz", ".png"]}}
 (ASSETS / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")

@@ -1,4 +1,7 @@
-# NULLGRAV experimental envelope version 1
+# XEVU experimental envelope version 1
+
+XEVU retains the original version-1 NULLGRAV identifiers and key-derivation
+namespace to read existing vaults. These are compatibility names.
 
 All integers are little-endian. This format is publicly specified to enable
 review and recovery tooling. It is an unaudited composition of existing

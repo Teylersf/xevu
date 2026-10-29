@@ -1,17 +1,25 @@
-# NULLGRAV
+# XEVU
 
-**Independent field systems. Beyond the known field.**
+**Carry what matters.**
 
-A native, USB/SD-bootable research transport environment with a private aerospace
-contractor aesthetic. Built for people carrying independent antigravity research:
-encrypted objects, explicit disk access, a local viewer, and verified replication.
+An open-source, offline file workspace for encrypted documents, media, project
+files and personal archives. Boot from supported USB/SD media or explore the
+native preview in a VM. Choose what enters. Decide what leaves.
 
-![NULLGRAV running in QEMU](docs/images/dashboard.png)
+![XEVU - Carry what matters](marketing/xevu-launch-1600x900.png)
 
-## Current release: engineering preview 0.4.0
+**XEVU** is pronounced **zeh-voo**. The same workspace serves creative projects,
+business documents, research, education and personal files. The name has no
+industry-specific meaning.
 
-0.4.0 adds explicit export of normal PC files. Existing 0.3 VM vaults can be
-upgraded with **UPGRADE NULLGRAV VM.cmd**, retaining their keys and retry state.
+[Brand and marketing kit](marketing/BRAND.md) · [Product sheet](output/pdf/xevu-product-sheet.pdf)
+· [Launch copy](marketing/COPY.md) · [Source and releases](https://github.com/Teylersf/xevu)
+
+## Current release: engineering preview 0.5.0
+
+0.5.0 introduces XEVU: a general-purpose identity, original vector logo, new boot
+artwork and a complete marketing kit. Existing 0.3/0.4 VM vaults can be upgraded
+with **UPGRADE XEVU VM.cmd**, retaining passwords, encrypted files and retry state.
 
 This is a real x86-64 UEFI executable and bootable disk image, written in Rust
 without Linux or a browser runtime. **It is a firmware-backed boot environment,
@@ -22,7 +30,7 @@ test files until the limitations in [SECURITY.md](SECURITY.md) are resolved.
 
 ### Implemented
 
-- Generated aerospace boot artwork, native antialiased typography, a custom
+- Abstract boot artwork, native antialiased typography, a custom
   emblem, animated boot sequence, and keyboard/mouse operation.
 - Glitch bursts, moving number cascades, a rotating field scope, live waveform
   graphics and a **Signal Lab** on page 6. Press **G** to disable motion, **Space**
@@ -42,7 +50,7 @@ test files until the limitations in [SECURITY.md](SECURITY.md) are resolved.
   verification. **SAVE FILES TO WINDOWS.cmd** delivers those files to a chosen
   Windows folder, including C:, through a virtual handoff drive.
 - Other firmware FAT volumes have no application file access until selected in
-  Disk Gate. Imports open the source read-only, write encrypted copies, read them
+  Drives. Imports open the source read-only, write encrypted copies, read them
   back, authenticate them, compare hashes, and revoke the source grant.
 - Native PNG, JPEG, uncompressed 24/32-bit BMP, text with ASCII glyph coverage,
   converted PDF page images, and a bounded silent MJPEG format. Decrypted file
@@ -50,7 +58,7 @@ test files until the limitations in [SECURITY.md](SECURITY.md) are resolved.
 - Explicitly selected removable destinations can receive an installed-image
   clone, with SHA-256 readback verification. Boot source, non-removable internal
   disks, undersized targets, and read-only targets are refused.
-- Offline host CLI `fieldctl` for streaming preparation, verification, and explicit
+- Offline host CLI `xevuctl` for streaming preparation, verification, and explicit
   plaintext export. No hosted API, analytics, telemetry, or network stack.
 
 ### Not implemented / not claimed
@@ -77,7 +85,7 @@ A USB SD-card reader is the best first test: the PC's firmware must support
 booting its built-in card slot for direct SD boot to work.
 
 1. Download the release archive, extract it, and verify `SHA256SUMS.txt`.
-2. Write `nullgrav-0.4.0-x86_64.img` using a trusted image writer. The included
+2. Write `xevu-0.5.0-x86_64.img` using a trusted image writer. The included
    PowerShell writer defaults to **listing only**, refuses Windows boot/system
    disks, requires a selected disk identity, and verifies the image bytes.
 3. Safely eject the card and insert it into the J3455 PC. Open its firmware boot
@@ -87,16 +95,16 @@ booting its built-in card slot for direct SD boot to work.
 4. Press **N** to create a vault; enter and repeat a long passphrase. There is no
    recovery backdoor. Press **U** to unlock an existing vault. **The third failed
    unlock destroys this whole card, including unused space, then shuts down.**
-5. Insert another FAT-formatted source drive. Open **3 / Disk Gate**, refresh,
+5. Insert another FAT-formatted source drive. Open **3 / Drives**, refresh,
    select a volume, and press Enter to grant temporary read access. Navigate to
    a file and press Enter to import an encrypted copy. Open **2 / Vault** to view.
-6. To replicate, open **4 / Replicate**, select the exact removable destination,
+6. To replicate, open **4 / Clone Drive**, select the exact removable destination,
    and type the displayed `CLONE <number>` phrase. Existing target contents are
    overwritten. Wait for readback verification and keep the secret separately.
 
 | Key | Action |
 | --- | --- |
-| 1–6 | Overview, Vault, Disk Gate, Replicate, System Brief, Signal Lab |
+| 1–6 | Overview, Vault, Drives, Clone Drive, About XEVU, Signal Lab |
 | U / N | Unlock / create vault |
 | E in Vault | Export the selected original as a normal decrypted file |
 | Up / Down / Enter | Select / open / import |
@@ -161,10 +169,10 @@ replaced. The encrypted vault copy remains. See **HOW TO EXPORT FILES.txt**.
 
 ### Easiest way to add Windows files to the running VM
 
-1. Keep the NULLGRAV VM open and double-click **ADD FILES TO NULLGRAV VM.cmd**.
+1. Keep the XEVU VM open and double-click **ADD FILES TO XEVU VM.cmd**.
 2. Select the files in the Windows picker. It attaches a **read-only virtual USB
    drive**, so no second physical USB stick or VM restart is needed.
-3. In NULLGRAV, press **N** to create a vault or **U** to unlock it. Press **3**,
+3. In XEVU, press **N** to create a vault or **U** to unlock it. Press **3**,
    then **R**, select the **last non-boot FAT volume**, and press **Enter**.
 4. Select a file and press **Enter** to encrypt/import it. Press **2** to see the
    vault, then Enter to open an imported file. Repeat for each file.
@@ -181,11 +189,11 @@ The picker needs Python 3 on Windows and the Ubuntu WSL used by the VM launcher.
 ### Command-line preparation
 
 ```powershell
-fieldctl init PATH_TO_VAULT_DIRECTORY
-fieldctl add PATH_TO_VAULT_DIRECTORY .\research.pdf .\experiment.png
-fieldctl list PATH_TO_VAULT_DIRECTORY
-fieldctl verify PATH_TO_VAULT_DIRECTORY
-fieldctl extract PATH_TO_VAULT_DIRECTORY OBJECT.NGV .\explicit-plaintext-output.pdf
+xevuctl init PATH_TO_VAULT_DIRECTORY
+xevuctl add PATH_TO_VAULT_DIRECTORY .\project.pdf .\project.png
+xevuctl list PATH_TO_VAULT_DIRECTORY
+xevuctl verify PATH_TO_VAULT_DIRECTORY
+xevuctl extract PATH_TO_VAULT_DIRECTORY OBJECT.NGV .\explicit-plaintext-output.pdf
 python tools/prepare_video.py input.mp4 output.ngm --seconds 30 --fps 10
 python tools/prepare_document.py input.pdf output.ngd
 ```
@@ -203,12 +211,12 @@ until imported. Do not confuse storage support with viewing support.
 QEMU + OVMF are required. On this Windows development host the QEMU tools run
 under Ubuntu WSL; the shipped image itself contains no Linux components.
 
-Double-click **TEST NULLGRAV VM.cmd** to open a visible QEMU window with 4 GiB of
+Double-click **TEST XEVU VM.cmd** to open a visible QEMU window with 4 GiB of
 guest memory. This uses Ubuntu WSL and WSLg, with QEMU's GTK display backend.
 Only virtual disks are attached; the physical SD card and Windows drives are not
 passed through. Test files, a writable vault disk, and a clone destination persist
-under `test-output/interactive-vm-0.4.0/`. Later launches resume those virtual disks.
-If a 0.3 vault already exists, quit it with Q and run **UPGRADE NULLGRAV VM.cmd**
+under `test-output/interactive-vm-0.5.0/`. Later launches resume those virtual disks.
+If a 0.3 or 0.4 vault already exists, quit it with Q and run **UPGRADE XEVU VM.cmd**
 first; the launcher refuses to replace it with an empty vault. Migration verifies
 encrypted file readback and preserves both retry slots, without resetting them.
 Older preview VM disks are kept separately. Three failed unlocks erase this
@@ -253,6 +261,16 @@ Project code is MIT licensed. Embedded fonts retain their OFL licenses under
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 The native boot screen is shown below. The emblem is also available as
-[a transparent vector asset](assets/nullgrav-mark.svg).
+[a transparent vector asset](assets/brand/xevu-mark-lime.svg).
 
-![Native NULLGRAV boot screen](docs/images/boot.png)
+![Native XEVU boot screen](docs/images/xevu-boot.png)
+
+## Rebranding and existing vaults
+
+XEVU continues the earlier NULLGRAV preview. The version-1 on-disk identifiers,
+including `NULLGRAV/VAULT`, `NULLGRAV_EXPORTS`, `.NGV`/`.NGK` and the original
+key-derivation namespace, are retained for compatibility. The visual rebrand
+does not change your password, ciphertext or three-failure policy. Older root
+launcher names remain compatibility aliases in a source checkout; new releases
+use the XEVU launchers. Historical verification records keep their original
+release names and hashes. See [the naming notes](marketing/NAME_RESEARCH.md).

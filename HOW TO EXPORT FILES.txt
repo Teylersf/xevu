@@ -1,17 +1,17 @@
-NULLGRAV / RESTORE A NORMAL PC FILE
+XEVU / RESTORE A NORMAL PC FILE
 
-Files inside NULLGRAV/VAULT remain encrypted objects with random object names.
+Files inside XEVU/VAULT remain encrypted objects with random object names.
 Use Export to restore the stored original filename and exact unencrypted bytes.
 Copying a raw .NGV object with Explorer does not decrypt it.
 
 WINDOWS VM -> A FOLDER ON C: (OR ANOTHER WINDOWS DRIVE):
-1. For an existing 0.3 VM, run UPGRADE NULLGRAV VM.cmd. Close any prompt with Esc
+1. For an existing 0.3/0.4 VM, run UPGRADE XEVU VM.cmd. Close any prompt with Esc
    and press Q in the old VM when ready. The encrypted vault and retry counter
-   are copied into 0.4; old disks remain as a backup. Use your original password.
+   are copied into 0.5; old disks remain as a backup. Use your original password.
 2. Keep the updated VM open. Run SAVE FILES TO WINDOWS.cmd and choose a folder.
 3. Unlock the vault, press 2, select a file, and press E.
 4. Choose WINDOWS_OUT, press Enter, type EXPORT, and press Enter again.
-5. Repeat for other files. Press Q in NULLGRAV when finished.
+5. Repeat for other files. Press Q in XEVU when finished.
 6. The Windows helper saves and SHA-256 verifies the normal files in your chosen
    folder after the VM releases the transfer image. Keep its console open.
 

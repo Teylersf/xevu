@@ -142,9 +142,9 @@ def main():
             attached=json.loads(receipt.read_text())
         else:
             attached=attach_bridge(image,a.session_dir);receipt.write_text(json.dumps(attached)+'\n')
-        print('WINDOWS_OUT is attached. In NULLGRAV:',flush=True)
+        print('WINDOWS_OUT is attached. In XEVU:',flush=True)
         print('2 -> select a vault file -> E -> WINDOWS_OUT -> Enter -> type EXPORT -> Enter.',flush=True)
-        print('Repeat for other files, then press Q to shut down NULLGRAV. Keep this window open.',flush=True)
+        print('Repeat for other files, then press Q to shut down XEVU. Keep this window open.',flush=True)
         if os.name=='nt':
             subprocess.run(['wsl.exe','-d','Ubuntu','--','python3',vm_import.windows_to_wsl(ROOT/'tools/vm_export.py'),
                 'wait','--session-dir',attached['session_dir']],check=True)

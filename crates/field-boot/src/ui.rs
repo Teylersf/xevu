@@ -1,16 +1,18 @@
 //! Small CPU framebuffer compositor, shared with the headless preview renderer.
+#[path = "ui/brand_mark.rs"]
+mod brand_mark;
 #[path = "ui/signal_ui.rs"]
 mod signal_ui;
 use crate::signals::Signal;
 use alloc::{format, string::String, vec, vec::Vec};
 pub const W: usize = 1280;
 pub const H: usize = 720;
-pub const BG: u32 = 0x0b0e0d;
-pub const PANEL: u32 = 0x111614;
-pub const BORDER: u32 = 0x29312a;
-pub const WHITE: u32 = 0xe4e8de;
-pub const MUTED: u32 = 0x819080;
-pub const LIME: u32 = 0xc4f36b;
+pub const BG: u32 = 0x0b1014;
+pub const PANEL: u32 = 0x121a20;
+pub const BORDER: u32 = 0x2b383e;
+pub const WHITE: u32 = 0xedf1e8;
+pub const MUTED: u32 = 0xa0aea8;
+pub const LIME: u32 = 0xc8ff76;
 pub const AMBER: u32 = 0xdda45a;
 pub const RED: u32 = 0xe37766;
 pub struct Font {
@@ -190,14 +192,36 @@ impl Ui {
         }
     }
     pub fn emblem(&mut self, x: usize, y: usize, scale: usize, c: u32) {
-        let x = x as i32;
-        let y = y as i32;
-        let s = scale as i32;
-        for o in 0..s {
-            self.line(x + o, y + 9 * s, x + 9 * s + o, y, c);
-            self.line(x + 9 * s + o, y, x + 18 * s + o, y + 9 * s, c);
-            self.line(x + 4 * s, y + 13 * s + o, x + 14 * s, y + 13 * s + o, c);
-            self.line(x + 8 * s, y + 17 * s + o, x + 10 * s, y + 17 * s + o, c);
+        for polygon in brand_mark::MARK {
+            self.brand_polygon(x, y, scale, polygon, c);
+        }
+    }
+    fn brand_polygon(&mut self, x: usize, y: usize, scale: usize, polygon: &[(i32, i32)], c: u32) {
+        // Scanline fill also handles the concave E and chamfered U wordmark.
+        for row in 0..24 * scale {
+            let scan = (row * 2 + 1) as i32;
+            let mut intersections = Vec::new();
+            for (a, b) in polygon.iter().zip(polygon.iter().cycle().skip(1)) {
+                let (ay, by) = (a.1 * scale as i32 * 2, b.1 * scale as i32 * 2);
+                if (ay <= scan && by > scan) || (by <= scan && ay > scan) {
+                    let ax = a.0 * scale as i32 * 2;
+                    let bx = b.0 * scale as i32 * 2;
+                    intersections.push(ax + (scan - ay) * (bx - ax) / (by - ay));
+                }
+            }
+            intersections.sort_unstable();
+            for pair in intersections.chunks_exact(2) {
+                let left = ((pair[0] + 1) / 2).max(0) as usize;
+                let right = ((pair[1] + 1) / 2).max(0) as usize;
+                self.rect(x + left, y + row, right.saturating_sub(left), 1, c);
+            }
+        }
+    }
+    pub fn wordmark(&mut self, x: usize, y: usize, scale: usize, c: u32) {
+        for (offset, polygons) in brand_mark::WORD {
+            for polygon in *polygons {
+                self.brand_polygon(x + *offset as usize * scale, y, scale, polygon, c);
+            }
         }
     }
     pub fn button(&mut self, r: Rect, label: &str, active: bool) {
@@ -224,19 +248,25 @@ impl Ui {
         self.art(190);
         self.rect(0, 0, W, 7, LIME);
         self.emblem(74, 64, 3, LIME);
-        self.text(148, 65, 40, "NULLGRAV", WHITE);
-        self.text(150, 111, 12, "INDEPENDENT FIELD SYSTEMS", MUTED);
-        self.text(74, 259, 64, "BEYOND THE", WHITE);
-        self.text(74, 329, 64, "KNOWN FIELD.", WHITE);
-        self.text(78, 433, 14, "PRIVATE RESEARCH / PORTABLE BY DESIGN", MUTED);
+        self.wordmark(170, 67, 2, WHITE);
+        self.text(171, 125, 12, "OFFLINE FILE WORKSPACE", MUTED);
+        self.text(74, 259, 64, "CARRY WHAT", WHITE);
+        self.text(74, 329, 64, "MATTERS.", WHITE);
+        self.text(
+            78,
+            433,
+            14,
+            "ENCRYPTED FILES / EXPLICIT TRANSFERS / YOUR CHOICE",
+            MUTED,
+        );
         self.rect(78, 525, 430, 2, BORDER);
         self.rect(78, 525, 430 * stage / 4, 2, LIME);
         let stages = [
             "ESTABLISHING FRAMEBUFFER",
             "IDENTIFYING BOOT MEDIUM",
             "APPLYING DISK ACCESS POLICY",
-            "INITIALIZING FIELD CONSOLE",
-            "FIELD CONSOLE READY",
+            "INITIALIZING XEVU WORKSPACE",
+            "XEVU WORKSPACE READY",
         ];
         self.text(78, 545, 12, stages[stage.min(4)], LIME);
         self.text(
@@ -253,19 +283,19 @@ impl Ui {
     }
     pub fn shell(&mut self, page: usize, unlocked: bool) {
         self.clear(BG);
-        self.rect(0, 0, 244, H, 0x0e120f);
+        self.rect(0, 0, 244, H, 0x0e151a);
         self.rect(243, 0, 1, H, BORDER);
         self.emblem(28, 33, 2, LIME);
-        self.text(78, 28, 28, "NULLGRAV", WHITE);
-        self.text(79, 64, 12, "FIELD SYSTEMS / 01", MUTED);
+        self.wordmark(88, 33, 1, WHITE);
+        self.text(88, 69, 12, "OFFLINE / 01", MUTED);
         self.rect(24, 110, 195, 1, BORDER);
-        self.text(28, 135, 12, "OPERATIONS", MUTED);
+        self.text(28, 135, 12, "WORKSPACE", MUTED);
         for (i, (n, label)) in [
             ("01", "OVERVIEW"),
             ("02", "VAULT"),
-            ("03", "DISK GATE"),
-            ("04", "REPLICATE"),
-            ("05", "SYSTEM BRIEF"),
+            ("03", "DRIVES"),
+            ("04", "CLONE DRIVE"),
+            ("05", "ABOUT XEVU"),
             ("06", "SIGNAL LAB"),
         ]
         .iter()
@@ -273,7 +303,7 @@ impl Ui {
         {
             let y = 174 + i * 62;
             if i == page {
-                self.rect(16, y - 5, 212, 47, 0x222c1c);
+                self.rect(16, y - 5, 212, 47, 0x243322);
                 self.rect(16, y - 5, 3, 47, LIME);
             }
             self.text(30, y + 7, 12, n, if i == page { LIME } else { MUTED });
@@ -291,7 +321,7 @@ impl Ui {
             if unlocked { LIME } else { AMBER },
         );
         self.text(28, 656, 12, "[L] LOCK  [Q] POWER", MUTED);
-        self.text(277, 28, 12, "NULLGRAV / RESEARCH TRANSPORT", MUTED);
+        self.text(277, 28, 12, "XEVU / OFFLINE FILE WORKSPACE", MUTED);
         self.text(
             1010,
             28,
@@ -311,7 +341,7 @@ impl Ui {
     }
     pub fn overview(&mut self, unlocked: bool, files: usize, disks: usize) {
         self.shell(0, unlocked);
-        // Preserve the live layout while reusing the generated hardware photograph.
+        // The abstract brand artwork is bundled; no network asset loading.
         for y in 88..465 {
             for x in 715..1246 {
                 let i = y * W + x;
@@ -322,9 +352,16 @@ impl Ui {
             }
         }
         self.text(279, 97, 12, "OFFLINE / INDEPENDENT / OPEN SOURCE", LIME);
-        self.text(277, 139, 64, "CONTROL", WHITE);
-        self.text(277, 207, 64, "THE FIELD.", WHITE);
-        self.wrap(282,304,410,"A portable workspace for extraordinary research. Choose what enters. Decide what leaves.",MUTED,3);
+        self.text(277, 139, 64, "CARRY WHAT", WHITE);
+        self.text(277, 207, 64, "MATTERS.", WHITE);
+        self.wrap(
+            282,
+            304,
+            410,
+            "Your files, on your terms. Keep encrypted copies. Choose what enters and what leaves.",
+            MUTED,
+            3,
+        );
         self.button(
             Rect {
                 x: 282,

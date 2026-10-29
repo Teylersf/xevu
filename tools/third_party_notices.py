@@ -4,7 +4,7 @@ import json,os,re,tomllib,urllib.request,urllib.error
 ROOT=Path(__file__).resolve().parents[1]
 registry=Path(os.environ.get('CARGO_HOME',Path.home()/'.cargo'))/'registry/src'
 packages=tomllib.loads((ROOT/'Cargo.lock').read_text())['package']
-parts=['# Third-party notices\n\nThese notices accompany the compiled NULLGRAV preview. Project code is MIT licensed. Embedded fonts retain the OFL notices under assets/fonts/.\n']
+parts=['# Third-party notices\n\nThese notices accompany the compiled XEVU preview. Project code is MIT licensed. Embedded fonts retain the OFL notices under assets/fonts/.\n']
 count=0
 for package in packages:
     if not package.get('source','').startswith('registry+'):continue

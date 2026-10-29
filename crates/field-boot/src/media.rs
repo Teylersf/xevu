@@ -106,7 +106,7 @@ pub struct Movie {
 }
 pub fn movie(data: &[u8]) -> Result<Movie, String> {
     if data.len() < 20 || (&data[..8] != b"NGMJPG01" && &data[..8] != b"NGDOC001") {
-        return Err("Not a NULLGRAV field video".into());
+        return Err("Not an XEVU converted video".into());
     }
     let fps = u32::from_le_bytes(data[8..12].try_into().unwrap());
     let document = &data[..8] == b"NGDOC001";

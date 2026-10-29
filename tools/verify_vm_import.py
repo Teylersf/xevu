@@ -22,7 +22,7 @@ def wait_for(check,label,timeout=100):
 
 def dashboard():
     rgb=capture('startup')
-    return rgb and rgb[(170*1280+16)*3:(170*1280+16)*3+3]==bytes([196,243,107])
+    return rgb and rgb[(170*1280+16)*3:(170*1280+16)*3+3]==bytes([200,255,118])
 
 def stop():
     try:qemu.command('quit')
@@ -64,7 +64,7 @@ def main():
         blocks=qemu.command('query-block')
         assert any(b.get('inserted',{}).get('file')==str(image) and b['inserted'].get('ro')for b in blocks)
         assert digest(OUT/'boot-test.img')==boot_hash
-        result={'image_sha256':digest(qemu.ROOT/'dist/nullgrav-0.4.0-x86_64.img'),
+        result={'image_sha256':digest(qemu.ROOT/'dist/xevu-0.5.0-x86_64.img'),
             'live_read_only_transfer_attached':True,'native_import_and_view_observed':True,
             'source_file_and_transfer_image_unchanged':True,'other_virtual_disks_unchanged':True,
             'vault_disk_retained_across_restart':True,'latest_transfer_reattached_read_only':True,
