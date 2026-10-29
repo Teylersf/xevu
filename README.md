@@ -15,9 +15,10 @@ industry-specific meaning.
 [Brand and marketing kit](marketing/BRAND.md) · [Product sheet](output/pdf/xevu-product-sheet.pdf)
 · [Launch copy](marketing/COPY.md) · [Source and releases](https://github.com/Teylersf/xevu)
 
-## Current release: engineering preview 0.5.0
+## Current release: engineering preview 0.5.1
 
-0.5.0 introduces XEVU: a general-purpose identity, original vector logo, new boot
+0.5.1 packages the tested native 0.5.0 build with a complete checksum manifest.
+The 0.5 series introduces XEVU: a general-purpose identity, original vector logo, new boot
 artwork and a complete marketing kit. Existing 0.3/0.4 VM vaults can be upgraded
 with **UPGRADE XEVU VM.cmd**, retaining passwords, encrypted files and retry state.
 

@@ -173,6 +173,11 @@ included in the brand kit. Branding does not change the crypto, filesystem,
 erasure, firmware-trust or hardware-validation limits described in SECURITY.md.
 Historical receipts and screenshots above retain their original release names.
 
+The 0.5.1 distribution retains the exact tested native 0.5.0 image and corrects
+the initial archive manifest to cover every payload. Packaging now checks that
+the parsed checksum-name set equals the complete ZIP payload set. Public
+download verification also checks this coverage before accepting an archive.
+
 ## Build artifacts
 
 The final clean, secret-free release image is 268,435,456 bytes.

@@ -21,7 +21,6 @@ files += ['SAVE FILES TO WINDOWS.cmd','HOW TO EXPORT FILES.txt','UPGRADE XEVU VM
           'docs/upgrade-export-verification.json','docs/images/export-confirmation.png','docs/images/export-complete.png']
 def digest(p):
     with p.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
-checksums=''.join(digest(ROOT/name)+'  '+name+'\n' for name in files)
 files += ['docs/rebrand-verification.json','marketing/BRAND.md','marketing/COPY.md',
           'marketing/NAME_RESEARCH.md','marketing/xevu-brand-board.png','marketing/xevu-launch-1600x900.png',
           'output/pdf/xevu-product-sheet.pdf','output/pdf/xevu-brand-guide.pdf']
@@ -32,12 +31,16 @@ for folder in ['assets/brand','marketing','output/pdf']:
         if path.is_file() and name not in files:files.append(name)
 files += ['assets/xevu-artwork.png','assets/fonts/BarlowSemiCondensed-SemiBold.ttf',
           'assets/fonts/IBMPlexMono-Regular.ttf']
-archive=DIST/'xevu-0.5.0-preview.zip'
+checksums=''.join(digest(ROOT/name)+'  '+name+'\n' for name in files)
+archive=DIST/'xevu-0.5.1-preview.zip'
 with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
     for name in files:z.write(ROOT/name,name)
     z.writestr('SHA256SUMS.txt',checksums)
 with zipfile.ZipFile(archive) as z:
     assert z.testzip() is None
+    manifest_names=[line.split('  ',1)[1] for line in z.read('SHA256SUMS.txt').decode('utf-8').splitlines()]
+    assert len(manifest_names)==len(files)==len(set(files))
+    assert set(manifest_names)==set(z.namelist())-{'SHA256SUMS.txt'}
     for name in files:
         h=hashlib.sha256()
         with z.open(name) as f:

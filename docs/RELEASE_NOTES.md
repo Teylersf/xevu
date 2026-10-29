@@ -1,4 +1,8 @@
-XEVU 0.5.0 is the general-purpose rebrand of the earlier NULLGRAV preview.
+XEVU 0.5.1 packages the tested native 0.5.0 rebrand with a complete checksum
+manifest covering every preview payload. The brand assets and native image are
+unchanged. It supersedes the initial 0.5.0 packaging.
+
+The 0.5 series is the general-purpose rebrand of the earlier NULLGRAV preview.
 
 XEVU (zeh-voo) / Carry what matters.
 
