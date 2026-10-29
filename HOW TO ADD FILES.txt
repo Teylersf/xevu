@@ -1,0 +1,25 @@
+NULLGRAV / ADD YOUR FILES
+
+IN THE WINDOWS TEST VM:
+1. Keep the NULLGRAV virtual-machine window open.
+2. Double-click ADD FILES TO NULLGRAV VM.cmd and select your files.
+3. In NULLGRAV, press N to create a vault, or U to unlock an existing vault.
+4. Press 3, then R. Use the arrow keys to select the LAST non-boot FAT volume.
+5. Press Enter. Select your file and press Enter again to encrypt and import it.
+6. Press 2 to see the vault. Select an imported file and press Enter to view it.
+
+The file picker attaches a read-only virtual USB drive. No extra physical USB
+stick is needed for VM testing. Your originals are unchanged. The transfer image
+is a PLAINTEXT COPY under test-output/windows-imports on this Windows computer.
+Only the imported copy inside the NULLGRAV vault is encrypted.
+
+PNG/JPEG/BMP and text can be viewed directly. PDFs and ordinary videos can be
+stored as encrypted files, but need tools/prepare_document.py (PDF) or
+tools/prepare_video.py (video) for native viewing. This preview has about 250 MiB
+total vault capacity and a 128 MiB per-file limit; earlier imports use that space.
+
+ON THE PHYSICAL J3455 PC:
+Put files on a separate FAT32 USB/SD source. Boot NULLGRAV, unlock/create a vault,
+plug in that source and use steps 4-6 above. NTFS/exFAT are not supported yet.
+
+THREE FAILED UNLOCKS ERASE THE ENTIRE BOOT CARD. Do not guess an existing password.

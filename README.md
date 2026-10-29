@@ -8,7 +8,10 @@ encrypted objects, explicit disk access, a local viewer, and verified replicatio
 
 ![NULLGRAV running in QEMU](docs/images/dashboard.png)
 
-## Current release: engineering preview 0.3.0
+## Current release: engineering preview 0.3.1
+
+0.3.1 adds Windows file-import tooling. The native guest image and VM vault stay
+at 0.3.0, so existing test vaults are preserved.
 
 This is a real x86-64 UEFI executable and bootable disk image, written in Rust
 without Linux or a browser runtime. **It is a firmware-backed boot environment,
@@ -132,6 +135,27 @@ contain important data. The writer does not sanitize old content beyond the
 installed image. See the supported writer behavior and limitations in SECURITY.md.
 
 ## Prepare files on a trusted computer
+
+### Easiest way to add Windows files to the running VM
+
+1. Keep the NULLGRAV VM open and double-click **ADD FILES TO NULLGRAV VM.cmd**.
+2. Select the files in the Windows picker. It attaches a **read-only virtual USB
+   drive**, so no second physical USB stick or VM restart is needed.
+3. In NULLGRAV, press **N** to create a vault or **U** to unlock it. Press **3**,
+   then **R**, select the **last non-boot FAT volume**, and press **Enter**.
+4. Select a file and press **Enter** to encrypt/import it. Press **2** to see the
+   vault, then Enter to open an imported file. Repeat for each file.
+
+Your originals stay unchanged. A **plaintext transfer copy** remains under
+`test-output/windows-imports` on the Windows computer; the vault copy is encrypted.
+The latest transfer is attached again on VM restart. Existing boot/vault disks
+are retained. Each batch allows up to 200 files / 200 MiB, with 128 MiB per file.
+The preview vault itself has about **250 MiB total capacity**, including earlier
+imports. PNG/JPEG/BMP and text open directly; PDF and ordinary video require
+the preparation tools below for native viewing. See **HOW TO ADD FILES.txt**.
+The picker needs Python 3 on Windows and the Ubuntu WSL used by the VM launcher.
+
+### Command-line preparation
 
 ```powershell
 fieldctl init PATH_TO_VAULT_DIRECTORY

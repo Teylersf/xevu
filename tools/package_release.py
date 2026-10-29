@@ -11,10 +11,13 @@ files += ['TEST NULLGRAV VM.cmd','tools/start-vm.ps1','tools/qemu.py','tools/bui
           'docs/clone-verification.json','docs/RELEASE_NOTES.md','assets/ARTWORK.md']
 files += ['tools/verify_signals.py','docs/signals-verification.json','docs/images/signals.png',
           'docs/purge-0.3.0-verification.json']
+files += ['ADD FILES TO NULLGRAV VM.cmd','HOW TO ADD FILES.txt','tools/add-vm-files.ps1',
+          'tools/vm_import.py','tools/test_vm_import.py','tools/verify_vm_import.py',
+          'docs/vm-import-verification.json','docs/images/windows-file-import.png']
 def digest(p):
     with p.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
 checksums=''.join(digest(ROOT/name)+'  '+name+'\n' for name in files)
-archive=DIST/'nullgrav-0.3.0-preview.zip'
+archive=DIST/'nullgrav-0.3.1-preview.zip'
 with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
     for name in files:z.write(ROOT/name,name)
     z.writestr('SHA256SUMS.txt',checksums)

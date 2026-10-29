@@ -1,31 +1,26 @@
-NULLGRAV 0.3.0 adds an animated Signal Lab and a glitch-driven boot/dashboard UI.
+NULLGRAV 0.3.1 adds a Windows file picker for loading files into a running test VM.
 
-- Moving hexadecimal cascades, a sweeping field scope, waveform activity,
-  particles, scan tracers, and short horizontal glitch bursts in the artwork.
-- Page 6 shows a fresh 256-bit public sample from firmware RNG or checked CPU
-  RDRAND. Press R to draw again. Display animation has its own independently
-  seeded XChaCha20 state; it never receives vault keys or passphrases.
-- Space holds the Signal Lab stream and G disables motion. Effects pause during
-  passphrase entry and media viewing. Scope/waveform graphics are simulated.
-- A versioned interactive VM launcher keeps older preview test disks separate.
+Double-click ADD FILES TO NULLGRAV VM.cmd, select your files, then in NULLGRAV:
+create/unlock a vault with N/U; press 3 and R; select the last non-boot FAT volume;
+press Enter, select a file, and press Enter to encrypt/import it. Press 2 to view.
+No second physical USB stick or VM restart is needed.
 
-The three-failure erase policy remains enabled: the third consecutive failed
-native unlock starts destruction of the entire boot card, including unused
-capacity and boot records, then shuts down for safe removal. A correct unlock
-resets the persistent count. Keep separate backups and read docs/ERASURE.md.
+The virtual transfer drive is read-only, originals stay unchanged, and the latest
+transfer is reattached after restart. Transfer images contain plaintext copies on
+the Windows computer; only the imported vault copy is encrypted. Selected files
+are never included in this public release. HOW TO ADD FILES.txt has the steps.
 
-Validation includes 16 automated Rust tests, strict host/native Clippy and
-formatting checks, and native QEMU verification of animation, pause, sample
-regeneration, motion-off, stable masked prompts, disk invariance and shutdown.
-The full native erase regression is also checked on disposable VM images.
+The native OS image is unchanged from 0.3.0. This patch retains the existing VM
+vault and its versioned directory. The image remains unsigned and unaudited.
+Three failed native unlocks still erase the entire boot medium. Do not guess a
+forgotten passphrase. Physical J3455/SD hardware remains untested.
 
-This is an unsigned, firmware-backed engineering preview, with no independent
-security audit, standalone kernel isolation or classified-data approval. Visual
-effects add no cryptographic assurance. Earlier copies/offline tools bypass the
-software retry limit, and logical overwrites cannot prove SD-flash sanitization.
-Physical J3455/SD hardware remains untested; no real SD was written.
+Validation: focused Python transfer-helper tests, native live-USB hotplug,
+file import and viewing, unchanged originals/transfer images/other VM disks,
+vault preservation and read-only transfer restoration after restart, and the
+actual Windows PowerShell-to-WSL import path. No physical disk was passed to QEMU.
 
-Extract the archive, read README.md and SECURITY.md, and verify SHA256SUMS.txt.
-TEST NULLGRAV VM.cmd launches a visible VM through Ubuntu WSL/WSLg with QEMU/OVMF
-installed. FLASH NULLGRAV.cmd lists devices and requires a specific empty target;
-it never automatically writes a newly inserted USB/SD device.
+Keep files below 128 MiB each. A batch can contain up to 200 files / 200 MiB;
+the current preview vault holds about 250 MiB total, including earlier imports.
+Images/text open directly; PDF and ordinary video need preparation for native
+viewing. Python 3 on Windows and the existing Ubuntu WSL VM setup are required.

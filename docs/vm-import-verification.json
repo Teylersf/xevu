@@ -1,0 +1,12 @@
+{
+  "image_sha256": "493f2b7524b399b4d0732ca259245c492280288f17bb303cee75e38e16b81e25",
+  "live_read_only_transfer_attached": true,
+  "native_import_and_view_observed": true,
+  "source_file_and_transfer_image_unchanged": true,
+  "other_virtual_disks_unchanged": true,
+  "vault_disk_retained_across_restart": true,
+  "latest_transfer_reattached_read_only": true,
+  "physical_devices_attached": false,
+  "fixture_only": true,
+  "windows_powershell_to_wsl_wrapper_verified": true
+}

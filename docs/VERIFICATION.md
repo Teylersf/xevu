@@ -96,6 +96,23 @@ new failures, all 384 MiB overwritten, unchanged other disks, invalid boot recor
 automatic shutdown, and successful reuse after reimaging. See
 [purge-0.3.0-verification.json](purge-0.3.0-verification.json).
 
+## 0.3.1 Windows file-import tooling
+
+Three Python helper tests cover unchanged source content, fresh image creation,
+file/size/name/output bounds and Unicode long-filename encoding. A native QEMU
+session received a newly attached read-only virtual USB image while running,
+refreshed Disk Gate, imported a file with spaces and an ampersand in its name,
+and opened its encrypted copy in the native text viewer. Original source,
+transfer image and other virtual disk hashes stayed unchanged. Restart retained
+the vault and reattached the latest transfer read-only. The actual Windows
+PowerShell wrapper was exercised through WSL against a separate test session.
+See [vm-import-verification.json](vm-import-verification.json) and the native
+[imported-file view](images/windows-file-import.png).
+
+The guest image is byte-for-byte identical to 0.3.0. All test data were public
+synthetic fixtures; no physical disk was attached or written. Host file-picker
+selections are stored only in ignored local state, never release artifacts.
+
 ## Build artifacts
 
 The final clean, secret-free release image is 268,435,456 bytes.

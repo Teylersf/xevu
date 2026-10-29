@@ -40,6 +40,13 @@ against a compromised viewer or malicious kernel/firmware-level code.
 
 ## Important limits
 
+- The Windows file picker copies only explicitly selected files into a plaintext
+  virtual transfer image under `test-output/windows-imports`. It attaches that
+  image read-only, never passes through a physical drive, and retains originals.
+  Only the guest's imported vault copy is encrypted. Transfer images remain on
+  the Windows computer; the latest is reattached on restart. They are excluded
+  from Git and release packages. Host compromise can expose these copies.
+
 - Signal Lab's visible random sample is public display output, not a vault key.
   It is fetched independently from firmware RNG or checked CPU RDRAND. Cosmetic
   numbers use their own independently seeded XChaCha20 state. Scope and waveform

@@ -66,8 +66,18 @@ def start(image=None,resume=False,display='none',memory_mib=512):
     if not resume or not var.exists():shutil.copyfile('/usr/share/OVMF/OVMF_VARS_4M.fd',var)
     with socket.socket()as reserve:reserve.bind(('127.0.0.1',0));port=reserve.getsockname()[1]
     cmd=['qemu-system-x86_64','-name','NULLGRAV 0.3.0 - Signal Console' if display!='none' else 'NULLGRAV 0.3.0 - Headless test VM','-machine','q35,accel=tcg','-cpu','max','-m',str(memory_mib)+'M','-display',display,'-net','none','-no-reboot','-qmp',f'tcp:127.0.0.1:{port},server=on,wait=off','-drive','if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd','-drive',f'if=pflash,format=raw,file={var}','-device','qemu-xhci,id=xhci','-device','usb-kbd,bus=xhci.0','-device',('usb-mouse' if display=='none' else 'usb-tablet')+',bus=xhci.0','-object','rng-random,filename=/dev/urandom,id=rng0','-device','virtio-rng-pci,rng=rng0']
-    for i,p in enumerate([boot,OUT/'import-source.img',target]):
-        cmd+=['-drive',f'if=none,id=media{i},format=raw,file={p}','-device',f'usb-storage,bus=xhci.0,drive=media{i}'+(',bootindex=1'if i==0 else '')]
+    media=[(boot,False),(OUT/'import-source.img',True),(target,False)]
+    saved_import=OUT/'last-windows-import.json'
+    if saved_import.exists():
+        info=json.loads(saved_import.read_text(encoding='utf-8'))
+        imported=Path(info['image']).resolve(strict=True)
+        allowed=(ROOT/'test-output').resolve()
+        if allowed not in imported.parents or not imported.is_file() or imported.suffix.lower()!='.img':
+            raise SystemExit('Saved transfer image is invalid. The vault was not modified.')
+        media.append((imported,True))
+    for i,(p,read_only) in enumerate(media):
+        escaped=str(p).replace(',',',,')
+        cmd+=['-drive',f'if=none,id=media{i},format=raw,file={escaped}'+(',readonly=on'if read_only else ''),'-device',f'usb-storage,bus=xhci.0,drive=media{i}'+(',bootindex=1'if i==0 else '')]
     with (OUT/'qemu.log').open('wb')as log:proc=subprocess.Popen(cmd,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
     STATE.write_text(json.dumps({'pid':proc.pid,'port':port,'boot':str(boot),'target':str(target),'display':display,'memory_mib':memory_mib,'source_sha256_before':__import__('hashlib').file_digest((OUT/'import-source.img').open('rb'),'sha256').hexdigest()},indent=2))
     time.sleep(2)

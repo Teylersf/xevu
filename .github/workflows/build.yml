@@ -15,6 +15,8 @@ jobs:
         run: cargo fmt --all -- --check
       - name: Test host and core
         run: cargo test --locked
+      - name: Test VM file transfer helper
+        run: python -m unittest discover -s tools -p test_vm_import.py -v
       - name: Build firmware executable
         run: cargo build --locked --release -p nullgrav-boot --target x86_64-unknown-uefi
       - name: Build host CLI
