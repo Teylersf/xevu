@@ -41,17 +41,21 @@ Lake J3455 physical machine and a removable USB/SD target have not been tested.
   source's synthetic unallocated tail was outside the copied extent. See
   [clone-verification.json](clone-verification.json).
 
-Two long emulator sessions were interrupted by the surrounding WSL runtime
-restarting; the saved images were retained, the VM resumed, and the checks were
-continued. No physical media or host system disk was modified. No claim of a
-completed long-duration or power-failure test is made.
+Initial long emulator sessions exposed the firmware's default five-minute
+watchdog, which was still enabled. The boot entry now explicitly disables it and
+refuses to continue on a real watchdog-configuration error. A separate native
+session beyond that deadline is checked before the download is published. The
+release includes a long-session verification receipt with elapsed time and the
+image digest. The final release image also completed a native PNG import and view.
+No physical media or host system disk was modified. No power-failure result is
+claimed.
 
 ## Build artifacts
 
 The final clean, secret-free release image is 268,435,456 bytes.
 
-- Image SHA-256: `c2ff8218f58f69e279072e08d7049431d69a6be3c3a579456cfcfd9e2e47950f`
-- EFI executable SHA-256: `aa2d45f0ba0e7b2eb14fb9c3a3dc4799e9af3c9064932f1c702fa226233916e0`
+- Image SHA-256: `d978a6f91403980cae72487a6e53cd19c715c68b9c224fa72abaa0940ff617d0`
+- EFI executable SHA-256: `c74a037079ea57b03ffd374ace0c607e003ac6d2c78109791b484b97f454bf7e`
 
 The package is read back from the ZIP and every payload is SHA-256 compared with
 the corresponding build artifact. Test vaults, fixture passphrases, OVMF state,

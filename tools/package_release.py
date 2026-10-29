@@ -3,7 +3,7 @@ from pathlib import Path
 import hashlib,json,zipfile
 ROOT=Path(__file__).resolve().parents[1]
 DIST=ROOT/'dist'
-files=['dist/nullgrav-0.1.0-x86_64.img','dist/nullgrav-0.1.0-x86_64.json','dist/nullgrav-0.1.0-x86_64.sha256','dist/BOOTX64.EFI','dist/fieldctl.exe','README.md','SECURITY.md','LICENSE','FLASH NULLGRAV.cmd','tools/write-media.ps1','tools/flash-menu.ps1','tools/prepare_video.py','tools/prepare_document.py','docs/FORMAT.md','docs/VERIFICATION.md','docs/images/dashboard.png']
+files=['dist/nullgrav-0.1.0-x86_64.img','dist/nullgrav-0.1.0-x86_64.json','dist/nullgrav-0.1.0-x86_64.sha256','dist/BOOTX64.EFI','dist/fieldctl.exe','README.md','SECURITY.md','LICENSE','THIRD_PARTY_NOTICES.md','assets/fonts/OFL-Barlow.txt','assets/fonts/OFL-IBMPlexMono.txt','assets/nullgrav-mark.svg','FLASH NULLGRAV.cmd','tools/write-media.ps1','tools/flash-menu.ps1','tools/prepare_video.py','tools/prepare_document.py','docs/FORMAT.md','docs/VERIFICATION.md','docs/ROADMAP.md','docs/images/dashboard.png','docs/images/boot.png']
 def digest(p):
     with p.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
 checksums=''.join(digest(ROOT/name)+'  '+name+'\n' for name in files)

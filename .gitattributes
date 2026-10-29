@@ -7,3 +7,5 @@
 *.bin binary
 *.rgbz binary
 assets/fonts/OFL* -whitespace
+assets/licenses/** -whitespace
+THIRD_PARTY_NOTICES.md -whitespace

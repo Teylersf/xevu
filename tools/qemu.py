@@ -37,6 +37,8 @@ def start(image=None,resume=False):
         try:command('query-status');raise SystemExit('A test VM is already running; stop it explicitly first.')
         except (OSError,ValueError):pass
     source=image or ROOT/'dist/nullgrav-0.1.0-x86_64.img'
+    source=Path(source).resolve()
+    if not source.is_file() or source.suffix.lower()!='.img':raise SystemExit('Use a regular test .img file, never a physical device.')
     boot=OUT/'boot-test.img'
     if not resume:shutil.copyfile(source,boot)
     elif not boot.exists():raise SystemExit('No saved test image to resume.')
@@ -69,9 +71,9 @@ def start(image=None,resume=False):
     print(json.dumps({'pid':proc.pid,'port':port,'status':command('query-status')}),flush=True)
     return proc
 def main():
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['start','run','resume','capture','key','text','stop','status']);p.add_argument('value',nargs='?',default='screen');a=p.parse_args()
-    if a.action=='start':start()
-    elif a.action=='run':start().wait()
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['start','run','resume','capture','key','text','stop','status']);p.add_argument('value',nargs='?',default='screen');p.add_argument('--image',type=Path);a=p.parse_args()
+    if a.action=='start':start(a.image)
+    elif a.action=='run':start(a.image).wait()
     elif a.action=='resume':start(resume=True).wait()
     elif a.action=='capture':
         if not a.value.replace('-','').replace('_','').isalnum():raise SystemExit('Use a simple capture label')

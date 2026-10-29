@@ -925,6 +925,14 @@ fn main() -> Status {
     if uefi::helpers::init().is_err() {
         return Status::ABORTED;
     }
+    // We intentionally remain in boot services. The firmware's default
+    // five-minute watchdog would otherwise reset an active viewing/copy session.
+    if let Err(error) = boot::set_watchdog_timer(0, 0x4e470001, None)
+        && error.status() != Status::UNSUPPORTED
+    {
+        uefi::println!("NULLGRAV: cannot disable firmware watchdog: {:?}", error);
+        return error.status();
+    }
     uefi::system::with_stdout(|o| {
         let _ = o.enable_cursor(false);
     });

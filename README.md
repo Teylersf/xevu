@@ -171,4 +171,10 @@ See [docs/VERIFICATION.md](docs/VERIFICATION.md) for the actual checked results.
 | `SECURITY.md` | Threat model, current trust boundaries, missing protections |
 
 Project code is MIT licensed. Embedded fonts retain their OFL licenses under
-`assets/fonts/`. Dependency licenses remain with their respective authors.
+`assets/fonts/`. Locked dependency license texts are included in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+The native boot screen is shown below. The emblem is also available as
+[a transparent vector asset](assets/nullgrav-mark.svg).
+
+![Native NULLGRAV boot screen](docs/images/boot.png)
