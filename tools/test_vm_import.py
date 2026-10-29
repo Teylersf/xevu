@@ -35,5 +35,14 @@ class TransferTests(unittest.TestCase):
         alias,long=short_name(name,1)
         self.assertTrue(long);self.assertEqual(len(alias),11);alias.decode('ascii')
         self.assertTrue(lfn_entries(name,alias))
+    def test_fat_aliases_do_not_shadow_an_existing_filename(self):
+        from build_image import FatImage,short_name
+        image=FatImage(64)
+        for n in range(1,101):image.add(f'research long filename {n}.txt',b'public')
+        image.add('RESEA100.TXT',b'another public file')
+        data=image.directory_bytes(image.root)
+        aliases=[data[i:i+11]for i in range(0,len(data),32)if data[i]!=0 and data[i+11]!=0x0f]
+        self.assertEqual(len(aliases),101);self.assertEqual(len(set(aliases)),101)
+        self.assertTrue(short_name('.ENV',1)[1])
 
 if __name__=='__main__':unittest.main()

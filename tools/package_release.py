@@ -17,7 +17,7 @@ files += ['ADD FILES TO NULLGRAV VM.cmd','HOW TO ADD FILES.txt','tools/add-vm-fi
 def digest(p):
     with p.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
 checksums=''.join(digest(ROOT/name)+'  '+name+'\n' for name in files)
-archive=DIST/'nullgrav-0.3.1-preview.zip'
+archive=DIST/'nullgrav-0.3.2-preview.zip'
 with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
     for name in files:z.write(ROOT/name,name)
     z.writestr('SHA256SUMS.txt',checksums)

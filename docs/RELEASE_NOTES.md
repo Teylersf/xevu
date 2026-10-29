@@ -1,9 +1,10 @@
-NULLGRAV 0.3.1 adds a Windows file picker for loading files into a running test VM.
+NULLGRAV 0.3.2 adds a Windows file picker for loading files into a running test VM.
 
 Double-click ADD FILES TO NULLGRAV VM.cmd, select your files, then in NULLGRAV:
 create/unlock a vault with N/U; press 3 and R; select the last non-boot FAT volume;
 press Enter, select a file, and press Enter to encrypt/import it. Press 2 to view.
-No second physical USB stick or VM restart is needed.
+No second physical USB stick or VM restart is needed. FAT short-name aliases
+are kept unique, including large batches and leading-dot filenames.
 
 The virtual transfer drive is read-only, originals stay unchanged, and the latest
 transfer is reattached after restart. Transfer images contain plaintext copies on

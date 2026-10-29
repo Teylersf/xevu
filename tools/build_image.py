@@ -17,7 +17,7 @@ class Node:
 def short_name(name,index):
     parts=name.rsplit('.',1);stem=parts[0];ext=parts[1] if len(parts)>1 else ''
     valid=lambda s: all(c.isascii() and (c.isalnum() or c in '_-') for c in s)
-    exact=len(stem)<=8 and len(ext)<=3 and valid(stem) and valid(ext) and name==name.upper()
+    exact=bool(stem) and len(stem)<=8 and len(ext)<=3 and valid(stem) and valid(ext) and name==name.upper()
     alias_ext=''.join(c if c.isascii() and (c.isalnum() or c in '_-') else '_' for c in ext.upper())[:3]
     alias=(stem.upper().ljust(8)+ext.upper().ljust(3)).encode('ascii') if exact else (''.join(c for c in stem.upper() if c.isascii() and c.isalnum())[:5].ljust(5,'_')+f'~{index:02}'[-3:]+alias_ext.ljust(3)).encode('ascii')
     return alias,not exact
@@ -60,8 +60,19 @@ class FatImage:
             struct.pack_into('<H',e,20,cluster>>16);struct.pack_into('<H',e,26,cluster&0xffff);struct.pack_into('<I',e,28,size);return bytes(e)
         if node is not self.root:
             entries.append(entry(b'.          ',node.cluster,0,True));entries.append(entry(b'..         ',node.parent.cluster if node.parent is not self.root else 0,0,True))
+        # Reserve literal 8.3 names before assigning long-name aliases. A large
+        # batch can otherwise generate an alias used by a later real filename.
+        reserved={short_name(c.name,1)[0] for c in node.children.values() if not short_name(c.name,1)[1]}
+        used=set()
         for i,child in enumerate(node.children.values(),1):
             alias,long=short_name(child.name,i)
+            candidate=i
+            while long and (alias in reserved or alias in used):
+                candidate+=1
+                if candidate>999:raise ValueError('Too many conflicting FAT short names in one directory')
+                alias,long=short_name(child.name,candidate)
+            if alias in used:raise ValueError('Duplicate FAT short name')
+            used.add(alias)
             if long:entries.extend(lfn_entries(child.name,alias))
             entries.append(entry(alias,child.cluster,0 if child.directory else len(child.data),child.directory))
         return b''.join(entries)+bytes(32)

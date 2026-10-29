@@ -8,9 +8,9 @@ encrypted objects, explicit disk access, a local viewer, and verified replicatio
 
 ![NULLGRAV running in QEMU](docs/images/dashboard.png)
 
-## Current release: engineering preview 0.3.1
+## Current release: engineering preview 0.3.2
 
-0.3.1 adds Windows file-import tooling. The native guest image and VM vault stay
+0.3.2 adds Windows file-import tooling. The native guest image and VM vault stay
 at 0.3.0, so existing test vaults are preserved.
 
 This is a real x86-64 UEFI executable and bootable disk image, written in Rust

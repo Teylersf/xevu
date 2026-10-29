@@ -96,10 +96,10 @@ new failures, all 384 MiB overwritten, unchanged other disks, invalid boot recor
 automatic shutdown, and successful reuse after reimaging. See
 [purge-0.3.0-verification.json](purge-0.3.0-verification.json).
 
-## 0.3.1 Windows file-import tooling
+## 0.3.1 / 0.3.2 Windows file-import tooling
 
-Three Python helper tests cover unchanged source content, fresh image creation,
-file/size/name/output bounds and Unicode long-filename encoding. A native QEMU
+Four Python helper tests cover unchanged source content, fresh image creation,
+file/size/name/output bounds, Unicode names, unique FAT aliases and dotfiles. A native QEMU
 session received a newly attached read-only virtual USB image while running,
 refreshed Disk Gate, imported a file with spaces and an ampersand in its name,
 and opened its encrypted copy in the native text viewer. Original source,
