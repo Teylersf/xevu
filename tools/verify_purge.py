@@ -94,7 +94,7 @@ def resume_trigger_test():
         with boot.open('rb') as f: assert f.read(18*512)==bytes(18*512)
         assert {n:digest(out/n) for n in others}==others
         assert boot.stat().st_size==staged.stat().st_size
-        receipt={'image_sha256':digest(qemu.ROOT/'dist/nullgrav-0.2.0-x86_64.img'),
+        receipt={'image_sha256':digest(qemu.ROOT/'dist/nullgrav-0.3.0-x86_64.img'),
             'simulated_interrupted_committed_trigger':True,
             'key_capsule_overwritten_before_boot':True,'startup_resumed_without_input':True,
             'boot_records_invalidated':True,'automatic_shutdown_observed':True,
@@ -111,7 +111,7 @@ def main():
     if args.resume_trigger_only:
         resume_trigger_test(); return
     qemu.OUT = OUT; qemu.STATE = OUT/'qemu-session.json'
-    image = qemu.ROOT/'dist/nullgrav-0.2.0-x86_64.img'
+    image = qemu.ROOT/'dist/nullgrav-0.3.0-x86_64.img'
     started = datetime.datetime.now(datetime.timezone.utc).isoformat()
     try:
         if not args.continue_created:

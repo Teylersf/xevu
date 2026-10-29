@@ -493,13 +493,16 @@ impl Drop for Aligned {
     }
 }
 pub fn random<const N: usize>() -> Result<[u8; N]> {
+    random_with_source().map(|(bytes, _)| bytes)
+}
+pub fn random_with_source<const N: usize>() -> Result<([u8; N], &'static str)> {
     let mut out = [0u8; N];
     if let Ok(handles) = boot::find_handles::<Rng>() {
         for h in handles {
             if let Ok(mut r) = boot::open_protocol_exclusive::<Rng>(h)
                 && r.get_rng(None, &mut out).is_ok()
             {
-                return Ok(out);
+                return Ok((out, "UEFI RNG"));
             }
         }
     }
@@ -521,7 +524,7 @@ pub fn random<const N: usize>() -> Result<[u8; N]> {
                 }
                 chunk.copy_from_slice(&word.to_le_bytes()[..chunk.len()]);
             }
-            return Ok(out);
+            return Ok((out, "CPU RDRAND"));
         }
     }
     Err("No cryptographic random generator; encryption refused".to_string())

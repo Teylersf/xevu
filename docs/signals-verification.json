@@ -1,0 +1,16 @@
+{
+  "started_at_utc": "2026-10-29T04:07:27.000203+00:00",
+  "image_sha256": "493f2b7524b399b4d0732ca259245c492280288f17bb303cee75e38e16b81e25",
+  "boot_animation_distinct_frames": 7,
+  "signal_lab_distinct_frames": 18,
+  "signal_frames_captured": 18,
+  "hold_freezes_stream": true,
+  "new_random_sample_changes_while_held": true,
+  "g_disables_and_resumes_motion": true,
+  "passphrase_prompt_pauses_effects": true,
+  "cancelled_prompt_did_not_arm_retry_counter": true,
+  "all_three_virtual_disks_unchanged": true,
+  "keyboard_shutdown_observed": true,
+  "physical_devices_attached": false,
+  "cryptographic_audit": false
+}

@@ -2,6 +2,7 @@
 #![no_main]
 extern crate alloc;
 mod media;
+mod signals;
 mod storage;
 mod ui;
 use alloc::{
@@ -410,7 +411,11 @@ impl App {
                     u.heading(
                         "BUILD MANIFEST / HONEST CAPABILITIES",
                         "SYSTEM BRIEF",
-                        "NULLGRAV 0.2 / NATIVE RUST / X86-64 UEFI",
+                        concat!(
+                            "NULLGRAV ",
+                            env!("CARGO_PKG_VERSION"),
+                            " / NATIVE RUST / X86-64 UEFI"
+                        ),
                     );
                     let lines = [
                         "PURPOSE       OFFLINE TRANSPORT FOR ANTIGRAVITY RESEARCH",
@@ -433,9 +438,14 @@ impl App {
                         );
                     }
                 }
+                5 => u.signal_lab(),
                 _ => {}
             }
         }
+        if self.viewer.is_none() && self.modal.is_none() {
+            u.ambient(self.page);
+        }
+        u.motion_status();
         if let Some(v) = &self.viewer {
             u.rect(264, 80, 1000, 586, BG);
             u.text(
@@ -522,7 +532,7 @@ impl App {
         }
         if let Some(m) = &self.modal {
             let warning = format!(
-                "{} attempts left. The third failed unlock ERASES THIS ENTIRE BOOT CARD, including files and boot records. A correct passphrase resets the count.",
+                "Attempts remaining: {}. The third failed unlock ERASES THIS ENTIRE BOOT CARD, including files and boot records. A correct passphrase resets the count.",
                 self.remaining
             );
             let (t, d, secret) = match m.kind {
@@ -748,6 +758,10 @@ impl App {
                     screen.clear();
                     return false;
                 }
+                'g' => {
+                    u.signal.motion = !u.signal.motion;
+                    return true;
+                }
                 _ => {}
             }
         }
@@ -794,15 +808,26 @@ impl App {
             Key::Printable(c) => {
                 let c = char::from(c);
                 match c.to_ascii_lowercase() {
-                    '1'..='5' => self.goto(c as usize - '1' as usize),
+                    '1'..='6' => self.goto(c as usize - '1' as usize),
                     'u' => self.prompt(Prompt::Unlock),
                     'n' => self.prompt(Prompt::Create),
                     'i' => self.goto(2),
                     'r' => {
-                        self.refresh();
-                        let _ = self.storage.refresh_volumes();
-                        self.notify("DEVICE LIST REFRESHED / ALL IMPORT GRANTS REVOKED", false);
+                        if self.page == 5 {
+                            u.signal
+                                .set_sample(storage::random_with_source::<32>().ok());
+                            if u.signal.sample.is_some() {
+                                self.notice.clear();
+                            } else {
+                                self.notify("RNG UNAVAILABLE / OLD SAMPLE CLEARED", true);
+                            }
+                        } else {
+                            self.refresh();
+                            let _ = self.storage.refresh_volumes();
+                            self.notify("DEVICE LIST REFRESHED / ALL IMPORT GRANTS REVOKED", false);
+                        }
                     }
+                    ' ' if self.page == 5 => u.signal.paused = !u.signal.paused,
                     '\u{8}' => {
                         if let Some((idx, mut p)) = self.browse.take() {
                             if let Some(pos) = p.rfind('\\') {
@@ -916,8 +941,8 @@ impl App {
             return true;
         }
         if x < 244 {
-            if (169..478).contains(&y) {
-                self.goto(((y - 169) / 62).min(4));
+            if (169..540).contains(&y) {
+                self.goto(((y - 169) / 62).min(5));
             }
             return true;
         }
@@ -991,11 +1016,15 @@ fn main() -> Status {
         Ok(s) => s,
         Err(_) => return Status::UNSUPPORTED,
     };
-    let mut u = Ui::new();
-    for i in 0..=4 {
-        u.splash(i);
+    let mut signal = signals::Signal::new(storage::random_with_source::<56>().ok());
+    signal.set_sample(storage::random_with_source::<32>().ok());
+    let mut u = Ui::new(signal);
+    for i in 0..32 {
+        u.signal.advance();
+        u.splash((i * 5 / 32).min(4));
+        u.boot_signal();
         screen.show(&u);
-        boot::stall(Duration::from_millis(160));
+        boot::stall(Duration::from_millis(20));
     }
     let storage = match Storage::new() {
         Ok(s) => s,
@@ -1070,6 +1099,13 @@ fn main() -> Status {
             running = app.click(app.mouse.0, app.mouse.1, &mut u, &mut screen);
         }
         app.ticks += 1;
+        if app.ticks.is_multiple_of(6)
+            && app.modal.is_none()
+            && app.viewer.is_none()
+            && u.signal.advance()
+        {
+            app.dirty = true;
+        }
         if app.key.is_some() && app.ticks - app.last_input > 30000 {
             app.lock();
         }

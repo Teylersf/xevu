@@ -8,7 +8,7 @@ encrypted objects, explicit disk access, a local viewer, and verified replicatio
 
 ![NULLGRAV running in QEMU](docs/images/dashboard.png)
 
-## Current release: engineering preview 0.2.0
+## Current release: engineering preview 0.3.0
 
 This is a real x86-64 UEFI executable and bootable disk image, written in Rust
 without Linux or a browser runtime. **It is a firmware-backed boot environment,
@@ -21,6 +21,11 @@ test files until the limitations in [SECURITY.md](SECURITY.md) are resolved.
 
 - Generated aerospace boot artwork, native antialiased typography, a custom
   emblem, animated boot sequence, and keyboard/mouse operation.
+- Glitch bursts, moving number cascades, a rotating field scope, live waveform
+  graphics and a **Signal Lab** on page 6. Press **G** to disable motion, **Space**
+  to hold its stream, and **R** to draw a fresh 256-bit public random sample.
+  Samples come from firmware RNG or checked CPU RDRAND; animation uses a separate
+  XChaCha20 stream and never receives vault keys. Scope graphics are simulated.
 - Create/unlock a password-protected vault on the boot medium. Argon2id derives a
   wrapping key; a random master key protects individual authenticated objects.
 - **Three consecutive failed native unlocks erase the entire boot card.** The
@@ -65,7 +70,7 @@ A USB SD-card reader is the best first test: the PC's firmware must support
 booting its built-in card slot for direct SD boot to work.
 
 1. Download the release archive, extract it, and verify `SHA256SUMS.txt`.
-2. Write `nullgrav-0.2.0-x86_64.img` using a trusted image writer. The included
+2. Write `nullgrav-0.3.0-x86_64.img` using a trusted image writer. The included
    PowerShell writer defaults to **listing only**, refuses Windows boot/system
    disks, requires a selected disk identity, and verifies the image bytes.
 3. Safely eject the card and insert it into the J3455 PC. Open its firmware boot
@@ -84,11 +89,13 @@ booting its built-in card slot for direct SD boot to work.
 
 | Key | Action |
 | --- | --- |
-| 1–5 | Overview, Vault, Disk Gate, Replicate, System Brief |
+| 1–6 | Overview, Vault, Disk Gate, Replicate, System Brief, Signal Lab |
 | U / N | Unlock / create vault |
 | Up / Down / Enter | Select / open / import |
 | Backspace / Escape | Parent folder / revoke access or close viewer |
-| R | Refresh devices and revoke import grants |
+| R | Refresh devices; in Signal Lab, draw a fresh random sample |
+| G | Toggle motion effects |
+| Space in Signal Lab | Hold / resume the cosmetic stream |
 | Space / Left / Right | Pause or seek field video / turn converted document pages |
 | L / Q | Lock and revoke grants / shut down |
 
@@ -153,10 +160,10 @@ Double-click **TEST NULLGRAV VM.cmd** to open a visible QEMU window with 4 GiB o
 guest memory. This uses Ubuntu WSL and WSLg, with QEMU's GTK display backend.
 Only virtual disks are attached; the physical SD card and Windows drives are not
 passed through. Test files, a writable vault disk, and a clone destination persist
-under `test-output/interactive-vm-0.2.0/`. Later launches resume those virtual disks.
+under `test-output/interactive-vm-0.3.0/`. Later launches resume those virtual disks.
 Older preview VM disks are kept separately. Three failed unlocks erase this
 version's virtual boot card just as they would a physical boot card.
-Use public test content. Press N to create a test vault, 1–5 to navigate, and Q
+Use public test content. Press N to create a test vault, 1–6 to navigate, and Q
 to shut down. This VM validates the software flow, not J3455/SD-reader compatibility.
 
 Install the development VM dependencies inside Ubuntu if they are absent:

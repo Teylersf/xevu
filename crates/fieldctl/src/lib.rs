@@ -11,6 +11,10 @@ pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 #[cfg(test)]
 #[path = "../../field-boot/src/media.rs"]
 mod native_media;
+#[cfg(test)]
+#[allow(dead_code)]
+#[path = "../../field-boot/src/signals.rs"]
+mod native_signals;
 fn crypto(e: vault::Error) -> Box<dyn std::error::Error> {
     format!("vault: {e:?}").into()
 }

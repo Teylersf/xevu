@@ -12,6 +12,8 @@ zeroize = { version = "1.8", features = ["alloc"] }
 sha2 = "0.10.9"
 
 [dev-dependencies]
+chacha20 = { version = "0.9.1", default-features = false, features = ["zeroize"] }
+miniz_oxide = { version = "0.8", default-features = false, features = ["with-alloc"] }
 zune-jpeg = { version = "0.4.21", default-features = false }
 zune-core = { version = "0.4.12", default-features = false }
 zune-png = { version = "0.4.10", default-features = false }

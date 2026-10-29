@@ -1,4 +1,7 @@
 //! Small CPU framebuffer compositor, shared with the headless preview renderer.
+#[path = "ui/signal_ui.rs"]
+mod signal_ui;
+use crate::signals::Signal;
 use alloc::{format, string::String, vec, vec::Vec};
 pub const W: usize = 1280;
 pub const H: usize = 720;
@@ -39,13 +42,15 @@ impl Rect {
 }
 pub struct Ui {
     pub pixels: Vec<u32>,
+    pub signal: Signal,
     wallpaper: Vec<u8>,
     fonts: Vec<Font>,
 }
 impl Ui {
-    pub fn new() -> Self {
+    pub fn new(signal: Signal) -> Self {
         Self {
             pixels: vec![BG; W * H],
+            signal,
             wallpaper: miniz_oxide::inflate::decompress_to_vec_zlib(include_bytes!(
                 "../../../assets/wallpaper.rgbz"
             ))
@@ -238,7 +243,10 @@ impl Ui {
             78,
             652,
             12,
-            "NATIVE X86-64 UEFI  /  ENGINEERING PREVIEW 0.2",
+            concat!(
+                "NATIVE X86-64 UEFI  /  ENGINEERING PREVIEW ",
+                env!("CARGO_PKG_VERSION")
+            ),
             MUTED,
         );
         self.text(970, 652, 12, "NO NETWORK STACK", MUTED);
@@ -258,6 +266,7 @@ impl Ui {
             ("03", "DISK GATE"),
             ("04", "REPLICATE"),
             ("05", "SYSTEM BRIEF"),
+            ("06", "SIGNAL LAB"),
         ]
         .iter()
         .enumerate()
@@ -283,7 +292,13 @@ impl Ui {
         );
         self.text(28, 656, 12, "[L] LOCK  [Q] POWER", MUTED);
         self.text(277, 28, 12, "NULLGRAV / RESEARCH TRANSPORT", MUTED);
-        self.text(1010, 28, 12, "BUILD 0.2.0 / ALPHA", AMBER);
+        self.text(
+            1010,
+            28,
+            12,
+            concat!("BUILD ", env!("CARGO_PKG_VERSION"), " / ALPHA"),
+            AMBER,
+        );
         self.rect(277, 66, 970, 1, BORDER);
         self.rect(277, 676, 970, 1, BORDER);
         self.text(

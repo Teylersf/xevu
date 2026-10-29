@@ -89,8 +89,8 @@ class FatImage:
         return hashlib.file_digest(destination.open('rb'),'sha256').hexdigest()
 
 def main():
-    root=Path(__file__).resolve().parents[1];p=argparse.ArgumentParser();p.add_argument('--boot',type=Path,default=root/'target/x86_64-unknown-uefi/release/nullgrav-boot.efi');p.add_argument('--output',type=Path,default=root/'dist/nullgrav-0.2.0-x86_64.img');p.add_argument('--size-mib',type=int,default=256);p.add_argument('--tree',type=Path);args=p.parse_args()
-    image=FatImage(args.size_mib);image.add('EFI/BOOT/BOOTX64.EFI',args.boot.read_bytes());image.add('NULLGRAV/README.TXT',b'NULLGRAV 0.2 ENGINEERING PREVIEW\r\nNo secret content included. Not audited or approved for classified data.\r\nPress N to create a vault; U to unlock; 1-5 to navigate; Q to shut down.\r\n')
+    root=Path(__file__).resolve().parents[1];p=argparse.ArgumentParser();p.add_argument('--boot',type=Path,default=root/'target/x86_64-unknown-uefi/release/nullgrav-boot.efi');p.add_argument('--output',type=Path,default=root/'dist/nullgrav-0.3.0-x86_64.img');p.add_argument('--size-mib',type=int,default=256);p.add_argument('--tree',type=Path);args=p.parse_args()
+    image=FatImage(args.size_mib);image.add('EFI/BOOT/BOOTX64.EFI',args.boot.read_bytes());image.add('NULLGRAV/README.TXT',b'NULLGRAV 0.3 ENGINEERING PREVIEW\r\nNo secret content included. Not audited or approved for classified data.\r\nPress N to create a vault; U to unlock; 1-6 to navigate; Q to shut down.\r\n')
     if args.tree:
         for file in sorted(args.tree.rglob('*')):
             if file.is_file():image.add(file.relative_to(args.tree).as_posix(),file.read_bytes())

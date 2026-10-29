@@ -140,9 +140,11 @@ dependencies = [
 
 [[package]]
 name = "fieldctl"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
+ "chacha20",
  "getrandom",
+ "miniz_oxide",
  "nullgrav-vault",
  "rpassword",
  "sha2",
@@ -223,7 +225,7 @@ dependencies = [
 
 [[package]]
 name = "nullgrav-boot"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "chacha20",
  "miniz_oxide",
@@ -238,7 +240,7 @@ dependencies = [
 
 [[package]]
 name = "nullgrav-vault"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "argon2",
  "chacha20poly1305",

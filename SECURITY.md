@@ -40,6 +40,15 @@ against a compromised viewer or malicious kernel/firmware-level code.
 
 ## Important limits
 
+- Signal Lab's visible random sample is public display output, not a vault key.
+  It is fetched independently from firmware RNG or checked CPU RDRAND. Cosmetic
+  numbers use their own independently seeded XChaCha20 state. Scope and waveform
+  graphics are simulated and provide no hardware health, entropy certification,
+  tamper detection, or additional cryptographic assurance. No value from this
+  display is fed into vault key generation. RNG failure clears the displayed
+  sample; there is no clock or user-input entropy fallback. Motion stops while a
+  passphrase prompt or media viewer is open, and can be disabled with G.
+
 - Native unlock has an automatic three-failure erase policy. It is not a
   hardware-enforced guessing limit or guaranteed flash sanitization. See
   [ERASURE.md](docs/ERASURE.md) for scope, crash behavior, offline bypasses,

@@ -1,0 +1,26 @@
+{
+  "started_at_utc": "2026-10-29T04:08:17.135726+00:00",
+  "image_sha256": "493f2b7524b399b4d0732ca259245c492280288f17bb303cee75e38e16b81e25",
+  "native_initialization_and_import": true,
+  "two_failures_survived_power_cycle": true,
+  "correct_unlock_reset_count": true,
+  "third_failure_trigger_observed": true,
+  "erased_bytes": 402653184,
+  "every_mib_batch_changed": 384,
+  "mbr_and_gap_zero_verified": true,
+  "fat_boot_and_backup_invalid": true,
+  "unallocated_tail_overwritten": true,
+  "other_disks_sha256_before": {
+    "import-source.img": "1701a15f8ecae7060d672d99ce15b37136c48176ea91b6f270a8cbca0dfc2c68",
+    "clone-target.img": "a6d72ac7690f53be6ae46ba88506bd97302a093f7108472bd9efc3cefda06484"
+  },
+  "other_disks_sha256_after": {
+    "import-source.img": "1701a15f8ecae7060d672d99ce15b37136c48176ea91b6f270a8cbca0dfc2c68",
+    "clone-target.img": "a6d72ac7690f53be6ae46ba88506bd97302a093f7108472bd9efc3cefda06484"
+  },
+  "erased_image_sha256": "92536285af0028915dce396a9c189df38e70de3b5ee92565d8445c4083768007",
+  "automatic_shutdown_observed": true,
+  "reimaged_card_booted": true,
+  "physical_devices_attached": false,
+  "flash_forensic_sanitization_proven": false
+}
