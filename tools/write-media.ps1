@@ -1,4 +1,4 @@
-param([int]$DiskNumber = -1, [string]$ExpectedSerial, [string]$ExpectedUniqueId, [string]$Image = (Join-Path (Split-Path -Parent $PSScriptRoot) 'dist\nullgrav-0.1.0-x86_64.img'))
+param([int]$DiskNumber = -1, [string]$ExpectedSerial, [string]$ExpectedUniqueId, [string]$Image = (Join-Path (Split-Path -Parent $PSScriptRoot) 'dist\nullgrav-0.2.0-x86_64.img'))
 $ErrorActionPreference = 'Stop'
 # Listing is always the default. A USB bus is not proof a device is disposable.
 if ($DiskNumber -lt 0) {

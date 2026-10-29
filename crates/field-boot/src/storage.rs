@@ -1,5 +1,6 @@
 //! Firmware-backed storage broker. This is an application policy, NOT a
 //! hardware isolation boundary; UEFI itself and every native parser are trusted.
+mod purge;
 use alloc::{
     alloc::{Layout, alloc_zeroed, dealloc},
     format,
@@ -9,6 +10,7 @@ use alloc::{
 };
 use core::ptr::NonNull;
 use nullgrav_vault::{self as vault, Access, Disk, FileCipher, META_LEN, MasterKey, TAG_LEN};
+pub use purge::Unlock;
 use sha2::{Digest, Sha256};
 use uefi::{
     CString16, Handle, boot,
@@ -183,7 +185,7 @@ pub struct Physical {
 pub struct Storage {
     pub boot_handle: Handle,
     pub boot_path: Vec<u8>,
-    pub root: Directory,
+    root: Option<Directory>,
     pub volumes: Vec<Volume>,
 }
 impl Storage {
@@ -198,7 +200,7 @@ impl Storage {
         let mut s = Self {
             boot_handle: h,
             boot_path: bp,
-            root: root(h)?,
+            root: Some(root(h)?),
             volumes: Vec::new(),
         };
         s.refresh_volumes()?;
@@ -231,7 +233,14 @@ impl Storage {
         Ok(())
     }
     pub fn has_key(&mut self) -> bool {
-        open(&mut self.root, KEY, FileMode::Read).is_ok()
+        self.root
+            .as_mut()
+            .is_some_and(|r| open(r, KEY, FileMode::Read).is_ok())
+    }
+    fn boot_root(&mut self) -> Result<&mut Directory> {
+        self.root
+            .as_mut()
+            .ok_or_else(|| "Boot medium is closed for erasure".to_string())
     }
     pub fn initialize(&mut self, password: &[u8]) -> Result<MasterKey> {
         if self.has_key() {
@@ -239,19 +248,17 @@ impl Storage {
         }
         let entropy = Zeroizing::new(random::<72>()?);
         let (h, k) = vault::create_key_header(password, &entropy).map_err(err)?;
-        mkdir(&mut self.root, "\\NULLGRAV")?;
-        mkdir(&mut self.root, VAULT)?;
-        write_new(&mut self.root, KEY, &h)?;
-        let check = read(&mut self.root, KEY, 128)?;
+        self.arm_retry(&h)?;
+        mkdir(self.boot_root()?, "\\NULLGRAV")?;
+        mkdir(self.boot_root()?, VAULT)?;
+        write_new(self.boot_root()?, KEY, &h)?;
+        let check = read(self.boot_root()?, KEY, 128)?;
         let _ = vault::unlock_key_header(password, &check).map_err(err)?;
         Ok(k)
     }
-    pub fn unlock(&mut self, password: &[u8]) -> Result<MasterKey> {
-        let h = read(&mut self.root, KEY, 128)?;
-        vault::unlock_key_header(password, &h).map_err(err)
-    }
     pub fn encrypted_files(&mut self) -> Vec<Entry> {
-        list(&mut self.root, VAULT)
+        self.boot_root()
+            .and_then(|r| list(r, VAULT))
             .unwrap_or_default()
             .into_iter()
             .filter(|e| !e.directory && e.name.to_ascii_uppercase().ends_with(".NGV"))
@@ -261,7 +268,11 @@ impl Storage {
         if !vault::valid_name(name) {
             return Err("Invalid object name".to_string());
         }
-        let mut f = open(&mut self.root, &format!("{VAULT}\\{name}"), FileMode::Read)?;
+        let mut f = open(
+            self.boot_root()?,
+            &format!("{VAULT}\\{name}"),
+            FileMode::Read,
+        )?;
         let size = f.get_boxed_info::<FileInfo>().map_err(err)?.file_size();
         let mut h = [0; 64];
         let mut m = vec![0; META_LEN + TAG_LEN];
@@ -278,7 +289,7 @@ impl Storage {
             return Err("Invalid object name".to_string());
         }
         let b = read(
-            &mut self.root,
+            self.boot_root()?,
             &format!("{VAULT}\\{name}"),
             LIMIT + 256 * 1024,
         )?;
@@ -304,6 +315,7 @@ impl Storage {
         let v = self
             .volumes
             .get(i)
+            .cloned()
             .ok_or_else(|| "Volume disappeared".to_string())?;
         if !v.allowed || v.boot {
             return Err("Disk access denied by default policy".to_string());
@@ -314,6 +326,7 @@ impl Storage {
         let v = self
             .volumes
             .get(i)
+            .cloned()
             .ok_or_else(|| "Volume disappeared".to_string())?;
         if !v.allowed || v.boot {
             return Err("Import permission is absent".to_string());
@@ -327,8 +340,8 @@ impl Storage {
                 .map(|b| format!("{b:02X}"))
                 .collect::<String>();
             let dest = format!("{VAULT}\\{id}.NGV");
-            write_new(&mut self.root, &dest, &b)?;
-            let reread = read(&mut self.root, &dest, LIMIT + 256 * 1024)?;
+            write_new(self.boot_root()?, &dest, &b)?;
+            let reread = read(self.boot_root()?, &dest, LIMIT + 256 * 1024)?;
             let (_, plain) = vault::unseal(key, &reread, LIMIT).map_err(err)?;
             if Sha256::digest(&*plain) != Sha256::digest(&*data) {
                 return Err("Import readback mismatch".to_string());
@@ -386,7 +399,7 @@ impl Storage {
         mut progress: impl FnMut(u64, u64),
     ) -> Result<String> {
         self.revoke_all();
-        self.root.flush().map_err(err)?;
+        self.boot_root()?.flush().map_err(err)?;
         // Re-enumerate and re-check the selected identity immediately before writing.
         let disks = self.physical_disks()?;
         let sources: Vec<_> = disks.iter().filter(|d| d.policy.boot).collect();

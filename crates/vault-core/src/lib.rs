@@ -2,6 +2,7 @@
 //! NULLGRAV's experimental file envelope. Existing cryptographic primitives;
 //! the composition and implementation have NOT received an independent audit.
 extern crate alloc;
+pub mod retry;
 use alloc::{string::String, vec, vec::Vec};
 use argon2::{Algorithm, Argon2, Params, Version};
 use chacha20poly1305::{

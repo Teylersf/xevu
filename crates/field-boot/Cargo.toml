@@ -8,6 +8,7 @@ license.workspace = true
 nullgrav-vault = { path = "../vault-core" }
 uefi = { version = "0.41.0", features = ["alloc", "global_allocator", "panic_handler", "logger"] }
 sha2 = { version = "0.10.9", default-features = false }
+chacha20 = { version = "0.9.1", default-features = false, features = ["zeroize"] }
 zeroize = { version = "1.8", default-features = false, features = ["alloc"] }
 miniz_oxide = { version = "0.8", default-features = false, features = ["with-alloc"] }
 zune-jpeg = { version = "0.4.21", default-features = false }

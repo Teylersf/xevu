@@ -238,7 +238,7 @@ impl Ui {
             78,
             652,
             12,
-            "NATIVE X86-64 UEFI  /  ENGINEERING PREVIEW 0.1",
+            "NATIVE X86-64 UEFI  /  ENGINEERING PREVIEW 0.2",
             MUTED,
         );
         self.text(970, 652, 12, "NO NETWORK STACK", MUTED);
@@ -283,7 +283,7 @@ impl Ui {
         );
         self.text(28, 656, 12, "[L] LOCK  [Q] POWER", MUTED);
         self.text(277, 28, 12, "NULLGRAV / RESEARCH TRANSPORT", MUTED);
-        self.text(1010, 28, 12, "BUILD 0.1.0 / ALPHA", AMBER);
+        self.text(1010, 28, 12, "BUILD 0.2.0 / ALPHA", AMBER);
         self.rect(277, 66, 970, 1, BORDER);
         self.rect(277, 676, 970, 1, BORDER);
         self.text(
@@ -436,6 +436,24 @@ impl Ui {
             "KEEP BOTH DEVICES CONNECTED UNTIL VERIFICATION FINISHES.",
             AMBER,
         );
+    }
+    pub fn erasure(&mut self, stage: &str, n: u64, total: u64, failed: bool) {
+        self.pixels.fill(BG);
+        self.shell(1, false);
+        self.heading(
+            "THREE-FAILURE RESPONSE",
+            "BOOT CARD / DATA DESTRUCTION",
+            "Only the current removable boot medium is selected. This operation cannot be undone.",
+        );
+        self.wrap(282, 230, 950, stage, if failed { RED } else { AMBER }, 3);
+        self.rect(282, 345, 960, 6, BORDER);
+        self.rect(282, 345, (960 * n / total.max(1)) as usize, 6, RED);
+        self.text(282, 375, 32, &format!("{}%", n * 100 / total.max(1)), WHITE);
+        self.wrap(282, 455, 930, if failed {
+            "The complete overwrite was NOT verified. Access stays locked. Press Q to shut down. Do not assume all data was erased."
+        } else {
+            "Keep the card connected until completion. Normal logical writes preserve the card for reformatting; flash remnants and earlier copies may survive."
+        }, MUTED, 4);
     }
     pub fn image(&mut self, rgb: &[u8], w: usize, h: usize, bounds: Rect) {
         let Rect { x, y, w: bw, h: bh } = bounds;

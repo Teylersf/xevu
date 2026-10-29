@@ -22,6 +22,28 @@ Argon2id v1.3 produces a 32-byte wrapping key. The first 64 bytes are AAD when
 wrapping/unwrapping the master key. Nonzero reserved bytes are rejected. There
 is no user identity, default key, server key, or recovery key in this record.
 
+## Native retry journal — two 512-byte raw sectors
+
+The envelope remains version 1. Native boot release 0.2 adds a separate journal
+at LBAs 16 and 17 in the MBR gap. It is not encrypted or tamper resistant.
+
+| Offset | Length | Meaning |
+| --- | --- | --- |
+| 0 | 8 | ASCII `NGTRY001` |
+| 8 | 8 | Monotonically increasing committed generation, initially 1 |
+| 16 | 1 | Consecutive failed authentications, 0–3; 3 triggers erasure |
+| 17 | 15 | Reserved zero bytes |
+| 32 | 32 | SHA-256 of the original 128-byte VAULT.NGK |
+| 64 | 32 | SHA-256 of bytes 0–63 |
+| 96 | 416 | Reserved zero bytes |
+
+The highest valid generation wins. Two valid records must have the same key
+hash, and equal generations must agree. Both entirely zero means unarmed; two
+invalid nonblank slots fail closed. Normal updates alternate slots; arming and
+the irreversible trigger write both. Flush and readback precede acceptance.
+Successful authentication commits a zero count. Full sequence and limitations:
+[ERASURE.md](ERASURE.md).
+
 ## Object .NGV header — 64 bytes
 
 | Offset | Length | Meaning |

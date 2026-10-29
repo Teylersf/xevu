@@ -40,6 +40,11 @@ against a compromised viewer or malicious kernel/firmware-level code.
 
 ## Important limits
 
+- Native unlock has an automatic three-failure erase policy. It is not a
+  hardware-enforced guessing limit or guaranteed flash sanitization. See
+  [ERASURE.md](docs/ERASURE.md) for scope, crash behavior, offline bypasses,
+  data-loss risk, and the exact overwrite sequence.
+
 - UEFI and its filesystem drivers can probe disks during device discovery.
   Application policy is not hardware-level disk blocking. GetProtocol borrows
   deliberately avoid disconnecting the firmware's active filesystem drivers.

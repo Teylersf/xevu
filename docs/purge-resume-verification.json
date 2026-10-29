@@ -1,0 +1,10 @@
+{
+  "image_sha256": "ccfa1af57d71d1dc4ba724888ca5c4406f21150853a80f20b48f3e87f6d19b1f",
+  "simulated_interrupted_committed_trigger": true,
+  "key_capsule_overwritten_before_boot": true,
+  "startup_resumed_without_input": true,
+  "boot_records_invalidated": true,
+  "automatic_shutdown_observed": true,
+  "other_virtual_disks_unchanged": true,
+  "physical_devices_attached": false
+}

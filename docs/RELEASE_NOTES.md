@@ -1,14 +1,26 @@
-NULLGRAV 0.1.0 is a bootable engineering preview for offline antigravity research
-transport, with a native private aerospace contractor visual style.
+NULLGRAV 0.2.0 adds a destructive three-failure policy to native vault unlock.
+**The third consecutive failed authentication erases the entire boot card,
+including unused capacity and boot files, then shuts down for safe removal.**
+A correct unlock resets the persistent counter. Keep separate backups.
 
 Includes the x86-64 UEFI boot image, Windows fieldctl, an explicit USB/SD installer,
 encrypted vault, FAT source import, image/text/converted-document viewers, silent
 converted MJPEG playback, and installed-image cloning with readback verification.
 
-Validation: 12 automated tests, strict host/native Clippy checks, source-format
-checks, an advisory audit with no known vulnerabilities, and native QEMU flows.
-The 256 MiB installed image was cloned from a larger synthetic physical source
-to a smaller target; source content remained unchanged.
+The erase path overwrites the wrapped key first, makes one random logical pass
+with readback checks, invalidates boot records, and requests driver detach.
+It uses normal writes and leaves the card available for reformatting. Readers
+without mechanical eject support require physical removal after shutdown.
+See docs/ERASURE.md for the exact scope and failure behavior.
+
+Validation includes 15 automated Rust tests, strict host/native Clippy, formatting,
+dependency advisories, and a disposable QEMU test of persistent failures, successful
+reset, whole-card erasure, unchanged other disks, shutdown, and reuse after reimage.
+The earlier 0.1.0 preview also exercised import, media viewing and verified cloning.
+
+This is a software policy, not a hardware retry barrier. An earlier clone or
+offline tool can bypass it. SD wear leveling can retain physical key/data pages;
+logical overwriting does not prove forensic sanitization. No real SD was erased.
 
 This is firmware-backed software, not a completed standalone kernel OS. No
 isolated userspace, VLC/general MP4/audio support, native PDF/Office parsers,

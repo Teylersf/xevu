@@ -12,7 +12,7 @@ use alloc::{
 };
 use core::time::Duration;
 use nullgrav_vault::MasterKey;
-use storage::{Entry, Physical, Storage};
+use storage::{Entry, Physical, Storage, Unlock};
 use uefi::{
     boot,
     prelude::*,
@@ -131,9 +131,11 @@ struct App {
     last_input: u64,
     mouse: (usize, usize),
     mouse_down: bool,
+    remaining: u8,
 }
 impl App {
     fn new(storage: Storage) -> Self {
+        let remaining = storage.remaining_attempts().unwrap_or(0);
         let mut s = Self {
             storage,
             key: None,
@@ -154,6 +156,7 @@ impl App {
             last_input: 0,
             mouse: (0, 0),
             mouse_down: false,
+            remaining,
         };
         s.refresh();
         s
@@ -407,7 +410,7 @@ impl App {
                     u.heading(
                         "BUILD MANIFEST / HONEST CAPABILITIES",
                         "SYSTEM BRIEF",
-                        "NULLGRAV 0.1 / NATIVE RUST / X86-64 UEFI",
+                        "NULLGRAV 0.2 / NATIVE RUST / X86-64 UEFI",
                     );
                     let lines = [
                         "PURPOSE       OFFLINE TRANSPORT FOR ANTIGRAVITY RESEARCH",
@@ -518,15 +521,15 @@ impl App {
             u.notice(&self.notice, self.bad);
         }
         if let Some(m) = &self.modal {
+            let warning = format!(
+                "{} attempts left. The third failed unlock ERASES THIS ENTIRE BOOT CARD, including files and boot records. A correct passphrase resets the count.",
+                self.remaining
+            );
             let (t, d, secret) = match m.kind {
-                Prompt::Unlock => (
-                    "UNLOCK VAULT",
-                    "Passphrase stays in memory. Authentication must succeed before any object can open.",
-                    true,
-                ),
+                Prompt::Unlock => ("UNLOCK VAULT", warning.as_str(), true),
                 Prompt::Create => (
                     "CREATE A VAULT",
-                    "Choose a long passphrase of at least 16 bytes. There is no password recovery or universal key.",
+                    "Use at least 16 bytes. THREE FAILED UNLOCKS ERASE THIS ENTIRE BOOT CARD, including unused space. There is no recovery. Keep a separate backup.",
                     true,
                 ),
                 Prompt::Repeat => (
@@ -606,6 +609,7 @@ impl App {
                 match self.storage.initialize(p.as_bytes()) {
                     Ok(k) => {
                         self.key = Some(k);
+                        self.remaining = 3;
                         self.refresh();
                         self.notify("VAULT CREATED AND HEADER READBACK AUTHENTICATED", false);
                     }
@@ -615,16 +619,21 @@ impl App {
             Prompt::Unlock => {
                 u.notice("AUTHENTICATING VAULT / PLEASE WAIT", false);
                 screen.show(u);
-                match self.storage.unlock(m.input.as_bytes()) {
-                    Ok(k) => {
+                let result = self.storage.unlock(m.input.as_bytes());
+                drop(m.input);
+                match result {
+                    Ok(Unlock::Open(k)) => {
                         self.key = Some(k);
+                        self.remaining = 3;
                         self.refresh();
                         self.notify("VAULT UNLOCKED / OBJECTS AUTHENTICATE WHEN OPENED", false);
                     }
-                    Err(_) => self.notify(
-                        "UNLOCK FAILED / WRONG PASSPHRASE, CORRUPT HEADER OR MISSING VAULT",
-                        true,
-                    ),
+                    Ok(Unlock::Denied(left)) => {
+                        self.remaining = left;
+                        self.notify(format!("UNLOCK FAILED / {left} ATTEMPTS LEFT / NEXT LIMIT ERASES THE ENTIRE BOOT CARD"), true);
+                    }
+                    Ok(Unlock::Erase) => self.erase(u, screen),
+                    Err(e) => self.notify(format!("UNLOCK REFUSED / {e}"), true),
                 }
             }
             Prompt::Clone(i) => {
@@ -656,6 +665,48 @@ impl App {
                 }
             }
         }
+    }
+    fn erase(&mut self, u: &mut Ui, screen: &mut Screen) -> ! {
+        self.lock(); // Drop keys, passphrase, decoded media and source grants first.
+        u.pixels.fill(0);
+        screen.clear();
+        let mut last = (String::new(), 101);
+        let result = self.storage.erase_boot_medium(|stage, n, total| {
+            let percent = n * 100 / total.max(1);
+            if stage != last.0 || percent != last.1 {
+                u.erasure(stage, n, total, false);
+                screen.show(u);
+                last = (stage.to_string(), percent);
+            }
+        });
+        match result {
+            Ok(()) => {
+                u.erasure(
+                    "COMPLETE / SHUTTING DOWN FOR SAFE CARD REMOVAL",
+                    1,
+                    1,
+                    false,
+                );
+                screen.show(u);
+                boot::stall(Duration::from_secs(2));
+            }
+            Err(e) => {
+                u.erasure(&format!("ERASURE INCOMPLETE / {e}"), 0, 1, true);
+                screen.show(u);
+                // Never return to unlock/import/clone after a destructive trigger.
+                // Leave the failure visible until Q requests a safe shutdown.
+                loop {
+                    if let Ok(Some(Key::Printable(c))) = uefi::system::with_stdin(|i| i.read_key())
+                        && char::from(c).eq_ignore_ascii_case(&'q')
+                    {
+                        break;
+                    }
+                    boot::stall(Duration::from_millis(50));
+                }
+            }
+        }
+        screen.clear();
+        uefi::runtime::reset(uefi::runtime::ResetType::SHUTDOWN, Status::SUCCESS, None)
     }
     fn action(&mut self, key: Key, u: &mut Ui, screen: &mut Screen) -> bool {
         self.last_input = self.ticks;
@@ -968,6 +1019,9 @@ fn main() -> Status {
         .and_then(|h| h.first().copied())
         .and_then(|h| boot::open_protocol_exclusive::<AbsolutePointer>(h).ok());
     let mut app = App::new(storage);
+    if app.storage.purge_pending().unwrap_or(false) {
+        app.erase(&mut u, &mut screen);
+    }
     let mut running = true;
     while running {
         if app.dirty {

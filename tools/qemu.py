@@ -38,7 +38,7 @@ def start(image=None,resume=False,display='none',memory_mib=512):
     if STATE.exists():
         try:command('query-status');raise SystemExit('A test VM is already running; stop it explicitly first.')
         except (OSError,ValueError):pass
-    source=image or ROOT/'dist/nullgrav-0.1.0-x86_64.img'
+    source=image or ROOT/'dist/nullgrav-0.2.0-x86_64.img'
     source=Path(source).resolve()
     if not source.is_file() or source.suffix.lower()!='.img':raise SystemExit('Use a regular test .img file, never a physical device.')
     boot=OUT/'boot-test.img'
@@ -77,7 +77,7 @@ def start(image=None,resume=False,display='none',memory_mib=512):
 def main():
     global OUT,STATE
     p=argparse.ArgumentParser();p.add_argument('action',choices=['start','run','resume','capture','key','text','stop','status']);p.add_argument('value',nargs='?',default='screen');p.add_argument('--image',type=Path);p.add_argument('--display',choices=['none','gtk','sdl'],default='none');p.add_argument('--memory-mib',type=int,default=512);p.add_argument('--session',choices=['test','interactive'],default='test');a=p.parse_args()
-    if a.session=='interactive':OUT=OUT/'interactive-vm';STATE=OUT/'qemu-session.json'
+    if a.session=='interactive':OUT=OUT/'interactive-vm-0.2.0';STATE=OUT/'qemu-session.json'
     options={'display':a.display,'memory_mib':a.memory_mib}
     if a.action=='start':start(a.image,**options)
     elif a.action=='run':start(a.image,**options).wait()

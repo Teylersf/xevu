@@ -9,12 +9,13 @@ Lake J3455 physical machine and a removable USB/SD target have not been tested.
 
 ## Automated checks
 
-- 12 Rust tests pass: encrypted round trips, empty/boundary-sized objects,
+- 15 Rust tests pass: encrypted round trips, empty/boundary-sized objects,
   metadata confidentiality, wrong keys/passwords, corruption, truncation,
   appended bytes, cross-file/chunk substitution, bounded KDF parameters,
   password/name/size restrictions, nonce-reuse refusal, device grants/revocation,
   clone target protections and extent bounds, streaming host import/extraction,
-  image decoder fixtures, and converted media bounds.
+  image decoder fixtures, converted media bounds, persistent three-failure state,
+  successful reset, torn/corrupt retry records, and boot-only erasure authority.
 - Host and UEFI `cargo clippy` checks pass with `-D warnings`.
 - `cargo fmt --all -- --check` and `git diff --check` pass.
 - PowerShell scripts parse; the volume-lock interop compiles without opening any
@@ -24,7 +25,7 @@ Lake J3455 physical machine and a removable USB/SD target have not been tested.
   informational warnings. See [dependency-audit.json](dependency-audit.json).
   This is an advisory check, not a cryptographic or systems audit.
 
-## Observed native flows
+## Original 0.1.0 native flows
 
 - Booted the MBR/FAT32 image via OVMF and reached the native dashboard.
 - Created a vault by typing/repeating a public fixture passphrase through the
@@ -41,21 +42,45 @@ Lake J3455 physical machine and a removable USB/SD target have not been tested.
   source's synthetic unallocated tail was outside the copied extent. See
   [clone-verification.json](clone-verification.json).
 
-Initial long emulator sessions exposed the firmware's default five-minute
-watchdog, which was still enabled. The boot entry now explicitly disables it and
-refuses to continue on a real watchdog-configuration error. A separate native
-session beyond that deadline is checked before the download is published. The
-release includes a long-session verification receipt with elapsed time and the
-image digest. The final release image also completed a native PNG import and view.
-No physical media or host system disk was modified. No power-failure result is
-claimed.
+Initial 0.1.0 emulator sessions exposed the firmware's default five-minute
+watchdog. The boot entry explicitly disables it and refuses to continue on a real
+configuration error; that behavior is retained in 0.2.0. The 0.1.0 release's
+separate long-session receipt records survival beyond that deadline and the
+tested image digest. That earlier image also completed native PNG import/view.
+No physical media or host system disk was modified by those tests.
+
+## 0.2.0 native erase verification
+
+The final 0.2.0 image was booted in a separate disposable headless VM. A vault
+was created through the guest keyboard and a public text fixture was imported.
+Two incorrect unlocks survived a complete QEMU power cycle, and a correct
+passphrase reset the durable count. Three further incorrect authentications
+triggered key destruction, a verified 384 MiB logical overwrite (including the
+unallocated tail), invalid MBR/FAT boot records, and automatic shutdown. SHA-256
+of both other attached disk images stayed unchanged. The erased virtual card
+retained its capacity and booted a newly written clean image successfully.
+See [purge-verification.json](purge-verification.json) and the native
+[warning](images/erase-warning.png) / [progress](images/erase-progress.png) captures.
+The first exploratory run exposed premature driver disconnect removing raw disk
+access; the final path closes owned files and keeps BlockIO available until done.
+A failed pass leaves a terminal failure screen and does not report success.
+
+A second VM booted a synthetic interrupted-erasure snapshot with a committed
+three-failure trigger and an already overwritten key capsule. Startup resumed
+erasure without any input, invalidated boot records and shut down, leaving both
+other virtual disks unchanged. This is controlled fault injection, not physical
+power-loss validation; see [purge-resume-verification.json](purge-resume-verification.json).
+
+These are regular-file virtual disks, not physical SD-flash sanitization tests.
+No real SD or host disk was written. Earlier interactive 0.1.0 VM state is kept
+separate from this release's versioned 0.2.0 VM directory.
 
 ## Build artifacts
 
 The final clean, secret-free release image is 268,435,456 bytes.
 
-- Image SHA-256: `d978a6f91403980cae72487a6e53cd19c715c68b9c224fa72abaa0940ff617d0`
-- EFI executable SHA-256: `c74a037079ea57b03ffd374ace0c607e003ac6d2c78109791b484b97f454bf7e`
+- Image SHA-256: `ccfa1af57d71d1dc4ba724888ca5c4406f21150853a80f20b48f3e87f6d19b1f`
+- EFI executable SHA-256: `1b78edd5d89851abcb524006ba9d2dbdb2e556f496811c706e3574e042942a21`
 
 The package is read back from the ZIP and every payload is SHA-256 compared with
 the corresponding build artifact. Test vaults, fixture passphrases, OVMF state,

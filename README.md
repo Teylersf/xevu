@@ -8,7 +8,7 @@ encrypted objects, explicit disk access, a local viewer, and verified replicatio
 
 ![NULLGRAV running in QEMU](docs/images/dashboard.png)
 
-## Current release: engineering preview 0.1.0
+## Current release: engineering preview 0.2.0
 
 This is a real x86-64 UEFI executable and bootable disk image, written in Rust
 without Linux or a browser runtime. **It is a firmware-backed boot environment,
@@ -23,6 +23,10 @@ test files until the limitations in [SECURITY.md](SECURITY.md) are resolved.
   emblem, animated boot sequence, and keyboard/mouse operation.
 - Create/unlock a password-protected vault on the boot medium. Argon2id derives a
   wrapping key; a random master key protects individual authenticated objects.
+- **Three consecutive failed native unlocks erase the entire boot card.** The
+  persistent count resets after a correct unlock. Key destruction, a verified
+  logical overwrite, boot-record invalidation, and shutdown are described in
+  [the erasure policy](docs/ERASURE.md). Keep separate backups.
 - Encrypted filenames and 64 KiB authenticated, padded data chunks using
   XChaCha20-Poly1305 and HKDF-SHA256. No secret key is embedded in the image.
 - Other firmware FAT volumes have no application file access until selected in
@@ -61,7 +65,7 @@ A USB SD-card reader is the best first test: the PC's firmware must support
 booting its built-in card slot for direct SD boot to work.
 
 1. Download the release archive, extract it, and verify `SHA256SUMS.txt`.
-2. Write `nullgrav-0.1.0-x86_64.img` using a trusted image writer. The included
+2. Write `nullgrav-0.2.0-x86_64.img` using a trusted image writer. The included
    PowerShell writer defaults to **listing only**, refuses Windows boot/system
    disks, requires a selected disk identity, and verifies the image bytes.
 3. Safely eject the card and insert it into the J3455 PC. Open its firmware boot
@@ -69,7 +73,8 @@ booting its built-in card slot for direct SD boot to work.
    configured to reject unsigned images will not run it. No firmware settings
    are changed automatically by this software.
 4. Press **N** to create a vault; enter and repeat a long passphrase. There is no
-   recovery backdoor. Press **U** to unlock an existing vault.
+   recovery backdoor. Press **U** to unlock an existing vault. **The third failed
+   unlock destroys this whole card, including unused space, then shuts down.**
 5. Insert another FAT-formatted source drive. Open **3 / Disk Gate**, refresh,
    select a volume, and press Enter to grant temporary read access. Navigate to
    a file and press Enter to import an encrypted copy. Open **2 / Vault** to view.
@@ -148,7 +153,9 @@ Double-click **TEST NULLGRAV VM.cmd** to open a visible QEMU window with 4 GiB o
 guest memory. This uses Ubuntu WSL and WSLg, with QEMU's GTK display backend.
 Only virtual disks are attached; the physical SD card and Windows drives are not
 passed through. Test files, a writable vault disk, and a clone destination persist
-under `test-output/interactive-vm/`. Later launches resume those virtual disks.
+under `test-output/interactive-vm-0.2.0/`. Later launches resume those virtual disks.
+Older preview VM disks are kept separately. Three failed unlocks erase this
+version's virtual boot card just as they would a physical boot card.
 Use public test content. Press N to create a test vault, 1–5 to navigate, and Q
 to shut down. This VM validates the software flow, not J3455/SD-reader compatibility.
 
